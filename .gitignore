@@ -1,0 +1,24 @@
+# General
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Backend
+backend/.env
+backend/__pycache__/
+backend/*.pyc
+backend/.pytest_cache/
+backend/uploads/
+backend/wealthflow.db
+backend/test_*.py
+backend/inspect_*.py
+backend/run_test_*.py
+backend/test.csv
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local

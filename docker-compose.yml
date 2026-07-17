@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: wealthflow
+      POSTGRES_USER: wealthflow
+      POSTGRES_PASSWORD: wealthflow_dev_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wealthflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://wealthflow:wealthflow_dev_2026@db:5432/wealthflow
+      - CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
+      - DEBUG=true
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  pgdata:
