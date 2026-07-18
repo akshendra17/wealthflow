@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, User as UserIcon, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import './Auth.css';
+import { Link } from 'react-router-dom';
 
-export default function Register({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
+export default function Register() {
   const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -162,9 +163,9 @@ export default function Register({ onSwitchToLogin }: { onSwitchToLogin: () => v
           <div className="auth-footer">
             <p>
               Already have an account?{' '}
-              <button className="text-button" onClick={onSwitchToLogin} type="button">
+              <Link to="/login" className="text-button">
                 Sign in instead
-              </button>
+              </Link>
             </p>
           </div>
         </div>

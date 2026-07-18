@@ -56,13 +56,11 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, isRetr
         config.headers!['Authorization'] = `Bearer ${accessToken}`;
         response = await fetch(url, config);
       } else {
-        // Refresh failed, clear token and redirect to login
+        // Refresh failed, clear token and let the 401 propagate
         accessToken = null;
-        window.location.href = '/'; 
       }
     } catch (err) {
       accessToken = null;
-      window.location.href = '/';
     }
   }
 

@@ -8,11 +8,12 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.config import settings
 
+from sqlalchemy.pool import NullPool
+
 engine = create_async_engine(
     settings.database_url,
-    pool_size=settings.db_pool_size,
-    max_overflow=settings.db_max_overflow,
     echo=settings.debug,
+    poolclass=NullPool,
 )
 
 async_session_factory = async_sessionmaker(
