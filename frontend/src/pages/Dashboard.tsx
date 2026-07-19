@@ -125,15 +125,16 @@ export default function Dashboard() {
       {hasData && dashboard.categories?.length > 0 && (
         <div style={styles.section} className="animate-in animate-in-delay-2">
           <h2 style={styles.sectionTitle}>Spending Breakdown</h2>
-          <div className="grid grid-4">
+          <div className="carousel">
             {dashboard.categories.slice(0, 8).map((cat: any) => (
-              <StatCard
-                key={cat.category}
-                category={cat.category}
-                amount={cat.total_amount}
-                count={cat.transaction_count}
-                percentage={cat.percentage}
-              />
+              <div key={cat.category} style={{ minWidth: 260, flexShrink: 0 }}>
+                <StatCard
+                  category={cat.category}
+                  amount={cat.total_amount}
+                  count={cat.transaction_count}
+                  percentage={cat.percentage}
+                />
+              </div>
             ))}
           </div>
         </div>
