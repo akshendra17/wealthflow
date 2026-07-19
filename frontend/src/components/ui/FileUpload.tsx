@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { uploadStatement } from '../../services/api';
+import { Upload, FileText, CheckCircle2, AlertCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { uploadStatement, ApiError } from '../../services/api';
 import Select from './Select';
 import { BANK_OPTIONS } from '../../utils/constants';
 import { useBankFilter } from '../../context/BankFilterContext';
@@ -8,7 +8,7 @@ import { useBankFilter } from '../../context/BankFilterContext';
 export default function FileUpload({ onUploadSuccess }: { onUploadSuccess?: (data: any) => void }) {
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<{ success: boolean, message: string, data?: any } | null>(null);
+  const [result, setResult] = useState<{ type: 'success' | 'error' | 'warning', message: string, data?: any } | null>(null);
   const { bankName, setBankName } = useBankFilter();
   const inputRef = useRef(null);
 
@@ -38,11 +38,11 @@ export default function FileUpload({ onUploadSuccess }: { onUploadSuccess?: (dat
   const handleFile = async (file: File) => {
     // Validate
     if (!file.name.toLowerCase().endsWith('.csv') && !file.name.toLowerCase().endsWith('.pdf')) {
-      setResult({ success: false, message: 'Only CSV and PDF files are supported.' });
+      setResult({ type: 'error', message: 'Only CSV and PDF files are supported.' });
       return;
     }
     if (file.size > 50 * 1024 * 1024) {
-      setResult({ success: false, message: 'File too large (max 50MB).' });
+      setResult({ type: 'error', message: 'File too large (max 50MB).' });
       return;
     }
 
@@ -51,13 +51,17 @@ export default function FileUpload({ onUploadSuccess }: { onUploadSuccess?: (dat
     try {
       const data = await uploadStatement(file, bankName);
       setResult({
-        success: true,
+        type: 'success',
         message: `Parsed ${data.total_transactions} transactions from "${data.original_filename}"`,
         data,
       });
       onUploadSuccess?.(data);
     } catch (err: any) {
-      setResult({ success: false, message: err.message });
+      if (err instanceof ApiError && err.status === 409) {
+        setResult({ type: 'warning', message: err.message });
+      } else {
+        setResult({ type: 'error', message: err.message });
+      }
     } finally {
       setUploading(false);
     }
@@ -112,12 +116,18 @@ export default function FileUpload({ onUploadSuccess }: { onUploadSuccess?: (dat
         </div>
       ) : result ? (
         <div style={styles.stateBox}>
-          {result.success ? (
+          {result.type === 'success' ? (
             <CheckCircle2 size={40} color="var(--color-tertiary)" />
+          ) : result.type === 'warning' ? (
+            <AlertTriangle size={40} color="var(--color-warning, #f59f00)" />
           ) : (
             <AlertCircle size={40} color="var(--color-error)" />
           )}
-          <p style={{ ...styles.stateText, color: result.success ? 'var(--color-tertiary)' : 'var(--color-error)' }}>
+          <p style={{ 
+            ...styles.stateText, 
+            color: result.type === 'success' ? 'var(--color-tertiary)' : 
+                   result.type === 'warning' ? 'var(--color-warning, #f59f00)' : 'var(--color-error)' 
+          }}>
             {result.message}
           </p>
           <button

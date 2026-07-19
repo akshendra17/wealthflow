@@ -2,20 +2,29 @@
 
 from __future__ import annotations
 
+import structlog
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, Depends, UploadFile, File, Form
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.services.statement_service import StatementService
 from app.db.models.user import User
+from app.core.exceptions import (
+    AppError,
+    NotFoundError,
+    ParsingError,
+    UnsupportedFormatError,
+    DuplicateError,
+)
 from app.db.session import get_db
 from app.dependencies import get_current_user
 from app.schemas.statement import StatementDetailRead, StatementRead
 
 router = APIRouter(prefix="/statements", tags=["statements"])
+logger = structlog.get_logger()
 
 
 @router.post("/upload", response_model=StatementRead, status_code=201)
@@ -28,13 +37,26 @@ async def upload_statement(
     """Upload a bank/CC statement (CSV or PDF) and parse transactions."""
     content = await file.read()
     service = StatementService(db)
-    statement = await service.upload_and_parse(
-        filename=file.filename or "unknown.csv",
-        file_content=content,
-        user_id=current_user.id,
-        bank_name=bank_name,
-    )
-    return statement
+    try:
+        statement = await service.upload_and_parse(
+            filename=file.filename or "unknown.csv",
+            file_content=content,
+            user_id=current_user.id,
+            bank_name=bank_name,
+        )
+        return statement
+    except DuplicateError as e:
+        logger.warning("duplicate_statement_upload", user_id=str(current_user.id), detail=e.message)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You have already uploaded this statement."
+        )
+    except AppError as e:
+        logger.warning("statement_upload_failed", user_id=str(current_user.id), error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.message,
+        )
 
 
 @router.get("/", response_model=list[StatementRead])

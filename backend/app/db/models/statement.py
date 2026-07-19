@@ -35,6 +35,9 @@ class Statement(Base):
     total_debit: Mapped[float] = mapped_column(default=0.0)
     total_credit: Mapped[float] = mapped_column(default=0.0)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    
+    file_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    content_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
 
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

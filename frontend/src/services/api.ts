@@ -4,6 +4,15 @@
 
 import type { Statement, Transaction, User, Category, MonthlySummary } from '../types';
 
+export class ApiError extends Error {
+  public status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = 'ApiError';
+  }
+}
+
 const API_BASE = '/api/v1';
 
 let accessToken: string | null = null;
@@ -66,7 +75,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, isRetr
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: { message: 'Network error' } }));
-    throw new Error(error.error?.message || error.detail || `HTTP ${response.status}`);
+    throw new ApiError(error.error?.message || error.detail || `HTTP ${response.status}`, response.status);
   }
 
   if (response.status === 204) return null as unknown as T;

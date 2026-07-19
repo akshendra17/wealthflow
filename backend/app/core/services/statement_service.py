@@ -10,7 +10,9 @@ import structlog
 from sqlalchemy import delete, extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundError, UnsupportedFormatError
+import hashlib
+
+from app.core.exceptions import NotFoundError, UnsupportedFormatError, DuplicateError
 from app.core.services.categorizer import categorize_transaction
 from app.core.services.statement_parser import ParseResult, parse_csv, parse_pdf
 from app.db.models.monthly_summary import MonthlySummary
@@ -39,6 +41,17 @@ class StatementService:
         if file_ext not in {".csv", ".pdf"}:
             raise UnsupportedFormatError(file_ext)
 
+        # Calculate raw file hash
+        file_hash = hashlib.sha256(file_content).hexdigest()
+        
+        # Check if file hash exists for this user
+        existing_stmt = await self.db.scalar(
+            select(Statement.id)
+            .where(Statement.user_id == user_id, Statement.file_hash == file_hash)
+        )
+        if existing_stmt:
+            raise DuplicateError("Statement", "file_hash", file_hash)
+
         # Do not save the uploaded file to disk per user request, just parse it.
 
         # Parse the file
@@ -46,6 +59,20 @@ class StatementService:
             result: ParseResult = parse_pdf(file_content, bank_name=bank_name)
         else:
             result: ParseResult = parse_csv(file_content, bank_name=bank_name)
+
+        # Calculate content hash (fingerprint of all transactions)
+        content_hash_input = ""
+        for txn in result.transactions:
+            content_hash_input += f"{txn.transaction_date}{txn.amount}{txn.description}"
+        content_hash = hashlib.sha256(content_hash_input.encode("utf-8")).hexdigest()
+
+        # Check if content hash exists for this user
+        existing_content = await self.db.scalar(
+            select(Statement.id)
+            .where(Statement.user_id == user_id, Statement.content_hash == content_hash)
+        )
+        if existing_content:
+            raise DuplicateError("Statement", "content_hash", content_hash)
 
         # Create the statement record
         statement = Statement(
@@ -56,6 +83,8 @@ class StatementService:
             statement_month=result.statement_month,
             statement_year=result.statement_year,
             raw_metadata=result.metadata,
+            file_hash=file_hash,
+            content_hash=content_hash,
             total_transactions=len(result.transactions),
         )
 
