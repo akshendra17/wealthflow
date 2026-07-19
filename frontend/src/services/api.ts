@@ -15,6 +15,7 @@ export class ApiError extends Error {
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
 
+
 let accessToken: string | null = null;
 
 export function setAccessToken(token: string | null): void {
