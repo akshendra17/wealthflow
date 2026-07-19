@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     db_max_overflow: int = Field(default=20, ge=0, le=100)
 
     # CORS
-    cors_origins: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    cors_origins: Union[str, List[str]] = ["http://localhost:5173", "http://localhost:3000"]
 
     # JWT Auth
     jwt_secret_key: str = "change-me-in-production-use-secrets-token-hex-32"
