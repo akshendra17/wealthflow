@@ -45,6 +45,15 @@ class Settings(BaseSettings):
             return json.loads(v)
         return v
 
+    @field_validator("database_url", mode="after")
+    @classmethod
+    def parse_database_url(cls, v: str) -> str:
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        if v.startswith("postgresql://") and not v.startswith("postgresql+asyncpg://"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
+
     @property
     def upload_path(self) -> Path:
         path = Path(self.upload_dir)
