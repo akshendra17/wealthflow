@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 
+from typing import Optional
 from fastapi import Depends, Header
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +15,7 @@ from app.db.session import get_db
 
 
 async def get_current_user(
-    authorization: str = Header(..., description="Bearer <access_token>"),
+    authorization: Optional[str] = Header(None, description="Bearer <access_token>"),
     db: AsyncSession = Depends(get_db),
 ) -> User:
     """Extract and validate the JWT access token from the Authorization header.
@@ -22,6 +23,9 @@ async def get_current_user(
     Returns the authenticated User ORM instance.
     Raises 401 if the token is missing, invalid, or expired.
     """
+    if not authorization:
+        raise AuthError("Missing Authorization header.")
+
     if not authorization.startswith("Bearer "):
         raise AuthError("Authorization header must start with 'Bearer '.")
 

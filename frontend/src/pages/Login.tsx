@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import './Auth.css';
+import { Link } from 'react-router-dom';
 
-export default function Login({ onSwitchToRegister }: { onSwitchToRegister: () => void }) {
+export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -107,9 +108,9 @@ export default function Login({ onSwitchToRegister }: { onSwitchToRegister: () =
           <div className="auth-footer">
             <p>
               New to WealthFlow?{' '}
-              <button className="text-button" onClick={onSwitchToRegister} type="button">
+              <Link to="/register" className="text-button">
                 Create an account
-              </button>
+              </Link>
             </p>
           </div>
         </div>

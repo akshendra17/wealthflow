@@ -33,6 +33,7 @@ async def list_transactions(
     year: Optional[int] = Query(None, ge=2000, le=2100),
     transaction_type: Optional[str] = Query(None, pattern="^(DEBIT|CREDIT)$"),
     search: Optional[str] = Query(None, max_length=200),
+    bank_name: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -55,11 +56,11 @@ async def list_transactions(
         query = query.where(Transaction.category == category)
         count_query = count_query.where(Transaction.category == category)
     if month:
-        query = query.where(extract("month", Transaction.transaction_date) == month)
-        count_query = count_query.where(extract("month", Transaction.transaction_date) == month)
+        query = query.where(Statement.statement_month == month)
+        count_query = count_query.where(Statement.statement_month == month)
     if year:
-        query = query.where(extract("year", Transaction.transaction_date) == year)
-        count_query = count_query.where(extract("year", Transaction.transaction_date) == year)
+        query = query.where(Statement.statement_year == year)
+        count_query = count_query.where(Statement.statement_year == year)
     if transaction_type:
         query = query.where(Transaction.transaction_type == transaction_type)
         count_query = count_query.where(Transaction.transaction_type == transaction_type)
@@ -67,6 +68,9 @@ async def list_transactions(
         search_filter = Transaction.description.ilike(f"%{search}%")
         query = query.where(search_filter)
         count_query = count_query.where(search_filter)
+    if bank_name:
+        query = query.where(Statement.bank_name == bank_name)
+        count_query = count_query.where(Statement.bank_name == bank_name)
 
     # Get total count
     total = (await db.execute(count_query)).scalar() or 0

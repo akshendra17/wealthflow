@@ -275,9 +275,13 @@ def _parse_table(rows: list[list[str]], file_type: str) -> ParseResult:
             "Please check the file format and ensure it contains transaction data."
         )
 
-    # Determine statement month/year from transaction dates
     dates = [t.transaction_date for t in transactions]
-    most_common_month = max(set((d.year, d.month) for d in dates), key=lambda x: sum(1 for d in dates if d.year == x[0] and d.month == x[1]))
+    if dates:
+        max_date = max(dates)
+        statement_year = max_date.year
+        statement_month = max_date.month
+    else:
+        statement_year, statement_month = None, None
 
     # Heuristic for statements with a single Amount column:
     # Expenses (DEBIT) usually vastly outnumber incomes/payments (CREDIT).
@@ -293,8 +297,8 @@ def _parse_table(rows: list[list[str]], file_type: str) -> ParseResult:
 
     result = ParseResult(
         transactions=transactions,
-        statement_year=most_common_month[0],
-        statement_month=most_common_month[1],
+        statement_year=statement_year,
+        statement_month=statement_month,
         errors=errors,
         metadata={
             "total_rows": len(data_rows),
@@ -308,7 +312,7 @@ def _parse_table(rows: list[list[str]], file_type: str) -> ParseResult:
         "table_parsed",
         file_type=file_type,
         transactions=len(transactions),
-        month=f"{most_common_month[0]}-{most_common_month[1]:02d}",
+        month=f"{statement_year}-{statement_month:02d}" if statement_year else "Unknown",
         errors=len(errors),
     )
 
@@ -328,8 +332,9 @@ def parse_csv(file_content: Union[str, bytes], bank_name: Optional[str] = None) 
         
     # Check for specific bank parser
     parser = get_parser_by_name(bank_name)
+    detected_bank = bank_name
     if not parser:
-        parser = detect_parser_from_text(file_content_str[:5000]) # Use first 5000 chars for detection
+        detected_bank, parser = detect_parser_from_text(file_content_str[:5000]) # Use first 5000 chars for detection
         
     if parser:
         logger.info("using_specific_parser", format="csv", parser=parser.__name__)
@@ -340,7 +345,10 @@ def parse_csv(file_content: Union[str, bytes], bank_name: Optional[str] = None) 
 
     reader = csv.reader(io.StringIO(file_content_str))
     rows = list(reader)
-    return _parse_table(rows, "CSV")
+    result = _parse_table(rows, "CSV")
+    if result and not result.bank_name:
+        result.bank_name = detected_bank
+    return result
 
 
 def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult:
@@ -348,6 +356,7 @@ def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult
     try:
         # Check for specific bank parser
         parser = get_parser_by_name(bank_name)
+        detected_bank = bank_name
         if not parser:
             # Extract some text for detection
             sample_text = ""
@@ -355,7 +364,7 @@ def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult
                 if len(pdf.pages) > 0:
                     sample_text = pdf.pages[0].extract_text() or ""
             
-            parser = detect_parser_from_text(sample_text)
+            detected_bank, parser = detect_parser_from_text(sample_text)
             
         if parser:
             logger.info("using_specific_parser", format="pdf", parser=parser.__name__)
@@ -376,7 +385,10 @@ def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult
             
             try:
                 if all_rows:
-                    return _parse_table(all_rows, "PDF")
+                    result = _parse_table(all_rows, "PDF")
+                    if result and not result.bank_name:
+                        result.bank_name = detected_bank
+                    return result
                 else:
                     raise ParsingError("No tables extracted")
             except ParsingError:
@@ -426,12 +438,18 @@ def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult
                     raise ParsingError("Could not detect column headers or transaction rows in the PDF.")
                 
                 dates = [t.transaction_date for t in transactions]
-                most_common_month = max(set((d.year, d.month) for d in dates), key=lambda x: sum(1 for d in dates if d.year == x[0] and d.month == x[1]))
+                if dates:
+                    max_date = max(dates)
+                    statement_year = max_date.year
+                    statement_month = max_date.month
+                else:
+                    statement_year, statement_month = None, None
                 
                 return ParseResult(
                     transactions=transactions,
-                    statement_year=most_common_month[0],
-                    statement_month=most_common_month[1],
+                    bank_name=detected_bank,
+                    statement_year=statement_year,
+                    statement_month=statement_month,
                     metadata={"parsed_via": "text_heuristic", "total_transactions": len(transactions)}
                 )
 

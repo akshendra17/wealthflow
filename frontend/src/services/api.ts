@@ -4,6 +4,15 @@
 
 import type { Statement, Transaction, User, Category, MonthlySummary } from '../types';
 
+export class ApiError extends Error {
+  public status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = 'ApiError';
+  }
+}
+
 const API_BASE = '/api/v1';
 
 let accessToken: string | null = null;
@@ -56,19 +65,17 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, isRetr
         config.headers!['Authorization'] = `Bearer ${accessToken}`;
         response = await fetch(url, config);
       } else {
-        // Refresh failed, clear token and redirect to login
+        // Refresh failed, clear token and let the 401 propagate
         accessToken = null;
-        window.location.href = '/'; 
       }
     } catch (err) {
       accessToken = null;
-      window.location.href = '/';
     }
   }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: { message: 'Network error' } }));
-    throw new Error(error.error?.message || error.detail || `HTTP ${response.status}`);
+    throw new ApiError(error.error?.message || error.detail || `HTTP ${response.status}`, response.status);
   }
 
   if (response.status === 204) return null as unknown as T;
@@ -135,6 +142,7 @@ interface TransactionParams {
   year?: number;
   type?: string;
   search?: string;
+  bankName?: string;
 }
 
 export async function getTransactions(params: TransactionParams = {}): Promise<{ items: Transaction[], total: number }> {
@@ -146,6 +154,7 @@ export async function getTransactions(params: TransactionParams = {}): Promise<{
   if (params.year) searchParams.set('year', params.year.toString());
   if (params.type) searchParams.set('transaction_type', params.type);
   if (params.search) searchParams.set('search', params.search);
+  if (params.bankName) searchParams.set('bank_name', params.bankName);
   
   const query = searchParams.toString();
   return request(`/transactions/${query ? `?${query}` : ''}`);
@@ -159,20 +168,24 @@ export async function categorizeTransaction(id: string, category: string, subcat
 }
 
 // ── Analytics ──
-export async function getDashboard(): Promise<any> { // Typing can be refined based on backend response
-  return request('/analytics/dashboard');
+export async function getDashboard(bankName?: string): Promise<any> { // Typing can be refined based on backend response
+  const query = bankName ? `?bank_name=${bankName}` : '';
+  return request(`/analytics/dashboard${query}`);
 }
 
-export async function getMonthlySummary(year: number, month: number): Promise<MonthlySummary[]> {
-  return request(`/analytics/monthly-summary?year=${year}&month=${month}`);
+export async function getMonthlySummary(year: number, month: number, bankName?: string): Promise<MonthlySummary[]> {
+  const query = bankName ? `&bank_name=${bankName}` : '';
+  return request(`/analytics/monthly-summary?year=${year}&month=${month}${query}`);
 }
 
-export async function getCategoryBreakdown(year: number, month: number): Promise<any> {
-  return request(`/analytics/category-breakdown?year=${year}&month=${month}`);
+export async function getCategoryBreakdown(year: number, month: number, bankName?: string): Promise<any> {
+  const query = bankName ? `&bank_name=${bankName}` : '';
+  return request(`/analytics/category-breakdown?year=${year}&month=${month}${query}`);
 }
 
-export async function getTrends(months: number = 6): Promise<any> {
-  return request(`/analytics/trends?months=${months}`);
+export async function getTrends(months: number = 6, bankName?: string): Promise<any> {
+  const query = bankName ? `&bank_name=${bankName}` : '';
+  return request(`/analytics/trends?months=${months}${query}`);
 }
 
 // ── Categories ──

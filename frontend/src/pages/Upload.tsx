@@ -79,7 +79,7 @@ export default function UploadPage() {
                 <div style={styles.stmtInfo}>
                   <span style={styles.stmtName}>{stmt.original_filename}</span>
                   <span style={styles.stmtMeta}>
-                    {stmt.statement_month && stmt.statement_year
+                    {stmt.bank_name ? stmt.bank_name.toUpperCase() : 'Unknown Bank'} • {stmt.statement_month && stmt.statement_year
                       ? `${MONTH_NAMES[stmt.statement_month]} ${stmt.statement_year}`
                       : 'Unknown period'
                     } • {stmt.total_transactions} transactions

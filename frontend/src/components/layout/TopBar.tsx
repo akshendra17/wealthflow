@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 export default function TopBar({ title }: { title: string }) {
   return (
@@ -16,10 +16,6 @@ export default function TopBar({ title }: { title: string }) {
             style={styles.searchInput}
           />
         </div>
-        <button style={styles.iconBtn} aria-label="Notifications">
-          <Bell size={18} />
-          <div style={styles.notifDot} />
-        </button>
         <div style={styles.avatar}>AK</div>
       </div>
     </header>
@@ -75,30 +71,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 'var(--text-small)',
     fontFamily: 'var(--font-body)',
     width: '100%',
-  },
-  iconBtn: {
-    position: 'relative',
-    background: 'rgba(53, 53, 52, 0.3)',
-    border: '1px solid var(--glass-border)',
-    borderRadius: 'var(--radius-lg)',
-    width: 36,
-    height: 36,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    color: 'var(--color-on-surface-variant)',
-    transition: 'all var(--transition-base)',
-  },
-  notifDot: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 7,
-    height: 7,
-    borderRadius: '50%',
-    background: 'var(--color-primary)',
-    boxShadow: '0 0 6px rgba(0, 209, 255, 0.6)',
   },
   avatar: {
     width: 36,
