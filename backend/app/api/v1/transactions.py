@@ -56,11 +56,11 @@ async def list_transactions(
         query = query.where(Transaction.category == category)
         count_query = count_query.where(Transaction.category == category)
     if month:
-        query = query.where(extract("month", Transaction.transaction_date) == month)
-        count_query = count_query.where(extract("month", Transaction.transaction_date) == month)
+        query = query.where(Statement.statement_month == month)
+        count_query = count_query.where(Statement.statement_month == month)
     if year:
-        query = query.where(extract("year", Transaction.transaction_date) == year)
-        count_query = count_query.where(extract("year", Transaction.transaction_date) == year)
+        query = query.where(Statement.statement_year == year)
+        count_query = count_query.where(Statement.statement_year == year)
     if transaction_type:
         query = query.where(Transaction.transaction_type == transaction_type)
         count_query = count_query.where(Transaction.transaction_type == transaction_type)

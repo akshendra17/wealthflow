@@ -36,8 +36,8 @@ class AnalyticsService:
                 .where(
                     Statement.user_id == user_id,
                     Statement.bank_name == bank_name,
-                    extract("year", Transaction.transaction_date) == year,
-                    extract("month", Transaction.transaction_date) == month,
+                    Statement.statement_year == year,
+                    Statement.statement_month == month,
                     Transaction.transaction_type == "DEBIT",
                 )
                 .group_by(Transaction.category)
@@ -122,8 +122,8 @@ class AnalyticsService:
                 .join(Statement, Transaction.statement_id == Statement.id)
                 .where(
                     Statement.user_id == user_id,
-                    extract("year", Transaction.transaction_date) == year,
-                    extract("month", Transaction.transaction_date) == month,
+                    Statement.statement_year == year,
+                    Statement.statement_month == month,
                     Transaction.category == cat["category"],
                     Transaction.transaction_type == "DEBIT",
                 )
@@ -167,8 +167,8 @@ class AnalyticsService:
             # Group directly from transactions
             result = await self.db.execute(
                 select(
-                    extract("year", Transaction.transaction_date).label("year"),
-                    extract("month", Transaction.transaction_date).label("month"),
+                    Statement.statement_year.label("year"),
+                    Statement.statement_month.label("month"),
                     func.sum(Transaction.amount).label("total"),
                 )
                 .join(Statement, Transaction.statement_id == Statement.id)
@@ -178,12 +178,12 @@ class AnalyticsService:
                     Transaction.transaction_type == "DEBIT"
                 )
                 .group_by(
-                    extract("year", Transaction.transaction_date),
-                    extract("month", Transaction.transaction_date)
+                    Statement.statement_year,
+                    Statement.statement_month
                 )
                 .order_by(
-                    extract("year", Transaction.transaction_date).desc(),
-                    extract("month", Transaction.transaction_date).desc()
+                    Statement.statement_year.desc(),
+                    Statement.statement_month.desc()
                 )
                 .limit(num_months)
             )
@@ -203,8 +203,8 @@ class AnalyticsService:
                 cat_result = await self.db.execute(
                     select(
                         Transaction.category,
-                        extract("year", Transaction.transaction_date).label("year"),
-                        extract("month", Transaction.transaction_date).label("month"),
+                        Statement.statement_year.label("year"),
+                        Statement.statement_month.label("month"),
                         func.sum(Transaction.amount).label("total_amount"),
                     )
                     .join(Statement, Transaction.statement_id == Statement.id)
@@ -212,16 +212,16 @@ class AnalyticsService:
                         Statement.user_id == user_id,
                         Statement.bank_name == bank_name,
                         Transaction.transaction_type == "DEBIT",
-                        (extract("year", Transaction.transaction_date) > oldest.year)
+                        (Statement.statement_year > oldest.year)
                         | (
-                            (extract("year", Transaction.transaction_date) == oldest.year)
-                            & (extract("month", Transaction.transaction_date) >= oldest.month)
+                            (Statement.statement_year == oldest.year)
+                            & (Statement.statement_month >= oldest.month)
                         ),
                     )
                     .group_by(
                         Transaction.category,
-                        extract("year", Transaction.transaction_date),
-                        extract("month", Transaction.transaction_date)
+                        Statement.statement_year,
+                        Statement.statement_month
                     )
                     .order_by("year", "month")
                 )
@@ -316,8 +316,8 @@ class AnalyticsService:
             # Find latest month from transactions
             result = await self.db.execute(
                 select(
-                    extract("year", Transaction.transaction_date).label("year"), 
-                    extract("month", Transaction.transaction_date).label("month")
+                    Statement.statement_year.label("year"), 
+                    Statement.statement_month.label("month")
                 )
                 .join(Statement, Transaction.statement_id == Statement.id)
                 .where(
@@ -325,12 +325,12 @@ class AnalyticsService:
                     Statement.bank_name == bank_name
                 )
                 .group_by(
-                    extract("year", Transaction.transaction_date), 
-                    extract("month", Transaction.transaction_date)
+                    Statement.statement_year, 
+                    Statement.statement_month
                 )
                 .order_by(
-                    extract("year", Transaction.transaction_date).desc(), 
-                    extract("month", Transaction.transaction_date).desc()
+                    Statement.statement_year.desc(), 
+                    Statement.statement_month.desc()
                 )
                 .limit(1)
             )

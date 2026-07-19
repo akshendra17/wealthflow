@@ -125,12 +125,14 @@ export default function Analytics() {
                     tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`}
                   />
                   <Tooltip
+                    cursor={{ fill: 'rgba(255, 255, 255, 0.04)' }}
                     contentStyle={{
                       background: 'rgba(20,20,20,0.95)',
                       border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: 12,
                       padding: '10px 14px',
                     }}
+                    itemStyle={{ color: '#e5e2e1', fontSize: '13px' }}
                     formatter={(value: any) => formatCurrency(value as number)}
                     labelStyle={{ color: '#e5e2e1', fontWeight: 600 }}
                   />

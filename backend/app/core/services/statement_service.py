@@ -118,7 +118,7 @@ class StatementService:
         await self.db.flush()
         await self.db.refresh(statement)
 
-        # Rebuild monthly summaries for the affected month
+        # Rebuild monthly summaries for the affected statement month
         if result.statement_year and result.statement_month:
             await self._rebuild_monthly_summaries(
                 result.statement_year, result.statement_month, user_id
@@ -172,7 +172,7 @@ class StatementService:
         await self.db.delete(statement)
         await self.db.flush()
 
-        # Rebuild summaries for the affected month
+        # Rebuild summaries for the affected statement month
         if year and month:
             await self._rebuild_monthly_summaries(year, month, user_id)
 
@@ -220,8 +220,8 @@ class StatementService:
             .join(Statement, Transaction.statement_id == Statement.id)
             .where(
                 Statement.user_id == user_id,
-                extract("year", Transaction.transaction_date) == year,
-                extract("month", Transaction.transaction_date) == month,
+                Statement.statement_year == year,
+                Statement.statement_month == month,
                 Transaction.transaction_type == "DEBIT",
             )
             .group_by(Transaction.category)

@@ -275,9 +275,13 @@ def _parse_table(rows: list[list[str]], file_type: str) -> ParseResult:
             "Please check the file format and ensure it contains transaction data."
         )
 
-    # Determine statement month/year from transaction dates
     dates = [t.transaction_date for t in transactions]
-    most_common_month = max(set((d.year, d.month) for d in dates), key=lambda x: sum(1 for d in dates if d.year == x[0] and d.month == x[1]))
+    if dates:
+        max_date = max(dates)
+        statement_year = max_date.year
+        statement_month = max_date.month
+    else:
+        statement_year, statement_month = None, None
 
     # Heuristic for statements with a single Amount column:
     # Expenses (DEBIT) usually vastly outnumber incomes/payments (CREDIT).
@@ -293,8 +297,8 @@ def _parse_table(rows: list[list[str]], file_type: str) -> ParseResult:
 
     result = ParseResult(
         transactions=transactions,
-        statement_year=most_common_month[0],
-        statement_month=most_common_month[1],
+        statement_year=statement_year,
+        statement_month=statement_month,
         errors=errors,
         metadata={
             "total_rows": len(data_rows),
@@ -308,7 +312,7 @@ def _parse_table(rows: list[list[str]], file_type: str) -> ParseResult:
         "table_parsed",
         file_type=file_type,
         transactions=len(transactions),
-        month=f"{most_common_month[0]}-{most_common_month[1]:02d}",
+        month=f"{statement_year}-{statement_month:02d}" if statement_year else "Unknown",
         errors=len(errors),
     )
 
@@ -434,13 +438,18 @@ def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult
                     raise ParsingError("Could not detect column headers or transaction rows in the PDF.")
                 
                 dates = [t.transaction_date for t in transactions]
-                most_common_month = max(set((d.year, d.month) for d in dates), key=lambda x: sum(1 for d in dates if d.year == x[0] and d.month == x[1]))
+                if dates:
+                    max_date = max(dates)
+                    statement_year = max_date.year
+                    statement_month = max_date.month
+                else:
+                    statement_year, statement_month = None, None
                 
                 return ParseResult(
                     transactions=transactions,
                     bank_name=detected_bank,
-                    statement_year=most_common_month[0],
-                    statement_month=most_common_month[1],
+                    statement_year=statement_year,
+                    statement_month=statement_month,
                     metadata={"parsed_via": "text_heuristic", "total_transactions": len(transactions)}
                 )
 
