@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo } from 'react';
+import React, { Component, type ErrorInfo } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './components/layout/Sidebar';
 import TopBar from './components/layout/TopBar';
@@ -9,6 +9,7 @@ import Analytics from './pages/Analytics';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { BankFilterProvider } from './context/BankFilterContext';
 
 class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
   constructor(props: { children: React.ReactNode }) {
@@ -94,18 +95,20 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-            <Route path="/" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
-            <Route path="/upload" element={<ProtectedRoute><MainLayout><UploadPage /></MainLayout></ProtectedRoute>} />
-            <Route path="/transactions" element={<ProtectedRoute><MainLayout><Transactions /></MainLayout></ProtectedRoute>} />
-            <Route path="/analytics" element={<ProtectedRoute><MainLayout><Analytics /></MainLayout></ProtectedRoute>} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
+        <BankFilterProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+              <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+              <Route path="/" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
+              <Route path="/upload" element={<ProtectedRoute><MainLayout><UploadPage /></MainLayout></ProtectedRoute>} />
+              <Route path="/transactions" element={<ProtectedRoute><MainLayout><Transactions /></MainLayout></ProtectedRoute>} />
+              <Route path="/analytics" element={<ProtectedRoute><MainLayout><Analytics /></MainLayout></ProtectedRoute>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </BankFilterProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

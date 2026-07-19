@@ -133,6 +133,7 @@ interface TransactionParams {
   year?: number;
   type?: string;
   search?: string;
+  bankName?: string;
 }
 
 export async function getTransactions(params: TransactionParams = {}): Promise<{ items: Transaction[], total: number }> {
@@ -144,6 +145,7 @@ export async function getTransactions(params: TransactionParams = {}): Promise<{
   if (params.year) searchParams.set('year', params.year.toString());
   if (params.type) searchParams.set('transaction_type', params.type);
   if (params.search) searchParams.set('search', params.search);
+  if (params.bankName) searchParams.set('bank_name', params.bankName);
   
   const query = searchParams.toString();
   return request(`/transactions/${query ? `?${query}` : ''}`);
@@ -157,20 +159,24 @@ export async function categorizeTransaction(id: string, category: string, subcat
 }
 
 // ── Analytics ──
-export async function getDashboard(): Promise<any> { // Typing can be refined based on backend response
-  return request('/analytics/dashboard');
+export async function getDashboard(bankName?: string): Promise<any> { // Typing can be refined based on backend response
+  const query = bankName ? `?bank_name=${bankName}` : '';
+  return request(`/analytics/dashboard${query}`);
 }
 
-export async function getMonthlySummary(year: number, month: number): Promise<MonthlySummary[]> {
-  return request(`/analytics/monthly-summary?year=${year}&month=${month}`);
+export async function getMonthlySummary(year: number, month: number, bankName?: string): Promise<MonthlySummary[]> {
+  const query = bankName ? `&bank_name=${bankName}` : '';
+  return request(`/analytics/monthly-summary?year=${year}&month=${month}${query}`);
 }
 
-export async function getCategoryBreakdown(year: number, month: number): Promise<any> {
-  return request(`/analytics/category-breakdown?year=${year}&month=${month}`);
+export async function getCategoryBreakdown(year: number, month: number, bankName?: string): Promise<any> {
+  const query = bankName ? `&bank_name=${bankName}` : '';
+  return request(`/analytics/category-breakdown?year=${year}&month=${month}${query}`);
 }
 
-export async function getTrends(months: number = 6): Promise<any> {
-  return request(`/analytics/trends?months=${months}`);
+export async function getTrends(months: number = 6, bankName?: string): Promise<any> {
+  const query = bankName ? `&bank_name=${bankName}` : '';
+  return request(`/analytics/trends?months=${months}${query}`);
 }
 
 // ── Categories ──

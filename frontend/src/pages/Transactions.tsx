@@ -3,10 +3,14 @@ import { getTransactions } from '../services/api';
 import { CATEGORY_CONFIG } from '../utils/constants';
 import TransactionList from '../components/transactions/TransactionList';
 import Select from '../components/ui/Select';
+import EmptyState from '../components/ui/EmptyState';
+import { useBankFilter } from '../context/BankFilterContext';
+import { BANK_OPTIONS } from '../utils/constants';
 
 import type { Transaction } from '../types';
 
 export default function Transactions() {
+  const { bankName, setBankName } = useBankFilter();
   const [data, setData] = useState<{items: Transaction[], total: number, has_next?: boolean}>({ items: [], total: 0 });
   const [filters, setFilters] = useState({ page: 1, category: '', search: '' });
   const [loading, setLoading] = useState(true);
@@ -20,6 +24,7 @@ export default function Transactions() {
           pageSize: 30,
           category: filters.category || undefined,
           search: filters.search || undefined,
+          bankName: bankName || undefined,
         });
         setData(res);
       } catch {
@@ -29,7 +34,7 @@ export default function Transactions() {
       }
     };
     fetch();
-  }, [filters]);
+  }, [filters, bankName]);
 
   return (
     <div>
@@ -37,6 +42,12 @@ export default function Transactions() {
 
       {/* Filters */}
       <div style={styles.filtersRow}>
+        <Select
+          value={bankName}
+          onChange={(val) => { setBankName(val); setFilters({ ...filters, page: 1 }); }}
+          options={BANK_OPTIONS}
+          style={{ width: 180 }}
+        />
         <input
           type="text"
           placeholder="Search descriptions..."
@@ -64,6 +75,11 @@ export default function Transactions() {
             <div key={i} className="skeleton" style={{ height: 52, borderRadius: 10 }} />
           ))}
         </div>
+      ) : data.total === 0 && !filters.search && !filters.category ? (
+        <EmptyState 
+          title="No Transactions Found" 
+          description="Upload a bank statement to start tracking your transactions."
+        />
       ) : (
         <>
           <TransactionList transactions={data.items} />

@@ -52,7 +52,7 @@ class StatementService:
             user_id=user_id,
             original_filename=filename,
             file_type=file_ext.upper().lstrip("."),
-            bank_name=result.bank_name,
+            bank_name=result.bank_name or bank_name,
             statement_month=result.statement_month,
             statement_year=result.statement_year,
             raw_metadata=result.metadata,

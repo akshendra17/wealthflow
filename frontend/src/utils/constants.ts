@@ -27,3 +27,17 @@ export const MONTH_SHORT = [
   '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
+
+export const BANK_OPTIONS = [
+  { label: 'All Banks', value: '' },
+  { label: 'HDFC Bank', value: 'hdfc' },
+  { label: 'Axis Bank', value: 'axis' },
+  { label: 'ICICI Bank', value: 'icici' },
+  { label: 'SBI', value: 'sbi' },
+  { label: 'HSBC', value: 'hsbc' },
+  { label: 'Bank of India (BOI)', value: 'boi' },
+  { label: 'Bank of Baroda (BOB)', value: 'bob' },
+  { label: 'Kotak Mahindra', value: 'kotak' },
+  { label: 'Canara Bank', value: 'canara' },
+  { label: 'American Express', value: 'amex' },
+];

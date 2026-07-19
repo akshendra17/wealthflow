@@ -3,13 +3,17 @@ import { TrendingDown, TrendingUp, DollarSign, CreditCard, ArrowUpRight } from '
 import { getDashboard, getTransactions } from '../services/api';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { MONTH_NAMES } from '../utils/constants';
-import FileUpload from '../components/ui/FileUpload';
 import StatCard from '../components/ui/StatCard';
 import TrendChart from '../components/charts/TrendChart';
 import CategoryRingChart from '../components/charts/CategoryRingChart';
 import TransactionList from '../components/transactions/TransactionList';
+import EmptyState from '../components/ui/EmptyState';
+import Select from '../components/ui/Select';
+import { useBankFilter } from '../context/BankFilterContext';
+import { BANK_OPTIONS } from '../utils/constants';
 
 export default function Dashboard() {
+  const { bankName, setBankName } = useBankFilter();
   const [dashboard, setDashboard] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,8 +22,8 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const [dashData, txnData] = await Promise.all([
-        getDashboard(),
-        getTransactions({ page: 1, pageSize: 15, type: 'DEBIT' }),
+        getDashboard(bankName || undefined),
+        getTransactions({ page: 1, pageSize: 15, type: 'DEBIT', bankName: bankName || undefined }),
       ]);
       setDashboard(dashData);
       setTransactions(txnData.items);
@@ -32,11 +36,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  const handleUploadSuccess = () => {
-    fetchData();
-  };
+  }, [bankName]);
 
   if (loading) {
     return (
@@ -54,6 +54,16 @@ export default function Dashboard() {
 
   return (
     <div>
+      {/* ── Filters ── */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-6)' }}>
+        <Select
+          value={bankName}
+          onChange={setBankName}
+          options={BANK_OPTIONS}
+          style={{ width: 220 }}
+        />
+      </div>
+
       {/* ── Hero Section ── */}
       <div style={styles.heroRow} className="animate-in">
         {/* Total Expenses Card */}
@@ -111,11 +121,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Upload Section ── */}
-      <div className="animate-in animate-in-delay-1" style={{ position: 'relative', zIndex: 10 }}>
-        <FileUpload onUploadSuccess={handleUploadSuccess} />
-      </div>
-
       {/* ── Category Cards Grid ── */}
       {hasData && dashboard.categories?.length > 0 && (
         <div style={styles.section} className="animate-in animate-in-delay-2">
@@ -154,6 +159,10 @@ export default function Dashboard() {
         <div style={styles.section} className="animate-in animate-in-delay-4">
           <TransactionList transactions={transactions} />
         </div>
+      )}
+
+      {!hasData && (
+        <EmptyState />
       )}
     </div>
   );

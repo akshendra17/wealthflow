@@ -5,20 +5,34 @@ import puppeteer from 'puppeteer';
   const page = await browser.newPage();
   
   page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-  page.on('pageerror', error => console.log('PAGE ERROR:', error.message));
-  page.on('requestfailed', request => console.log('REQUEST FAILED:', request.url(), request.failure()?.errorText));
-
-  try {
-    await page.goto('http://localhost:5173', { waitUntil: 'networkidle0', timeout: 5000 });
-  } catch (e) {
-    console.log('GOTO ERROR:', e.message);
-  }
   
-  const content = await page.content();
-  if (content.includes('loading-spinner')) {
-    console.log('SPINNER DETECTED IN HTML!');
+  await page.goto('http://localhost:5173/upload', { waitUntil: 'networkidle0' });
+  
+  // Wait for the select button
+  const trigger = await page.$('.select-trigger');
+  if (trigger) {
+    const text1 = await page.evaluate(el => el.textContent, trigger);
+    console.log('Select trigger text BEFORE click:', text1);
+    
+    await trigger.click();
+    
+    // Wait for the dropdown options
+    await page.waitForSelector('.select-option');
+    const options = await page.$$('.select-option');
+    console.log(`Found ${options.length} options`);
+    
+    if (options.length > 1) {
+      // Click the second option (HDFC Bank)
+      await options[1].click();
+      
+      // Give it a moment to re-render
+      await new Promise(r => setTimeout(r, 500));
+      
+      const text2 = await page.evaluate(el => el.textContent, trigger);
+      console.log('Select trigger text AFTER click:', text2);
+    }
   } else {
-    console.log('NO SPINNER DETECTED');
+    console.log('Could not find .select-trigger');
   }
 
   await browser.close();

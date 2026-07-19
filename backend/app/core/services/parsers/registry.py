@@ -1,5 +1,3 @@
-"""Parser registry for all bank statement parsers."""
-
 from typing import Type, Optional, Tuple
 import structlog
 from .base import BaseBankParser
@@ -32,15 +30,3 @@ def detect_parser_from_text(text_content: str) -> Tuple[Optional[str], Optional[
         except Exception as e:
             logger.warning("parser_detect_error", bank=bank_name, error=str(e))
     return None, None
-
-# Import all parsers here so their decorators run
-from . import hdfc
-from . import axis
-from . import icici
-from . import sbi
-from . import hsbc
-from . import boi
-from . import bob
-from . import kotak
-from . import canara
-from . import amex

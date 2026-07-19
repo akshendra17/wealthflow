@@ -2,12 +2,14 @@ import React, { useState, useRef } from 'react';
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { uploadStatement } from '../../services/api';
 import Select from './Select';
+import { BANK_OPTIONS } from '../../utils/constants';
+import { useBankFilter } from '../../context/BankFilterContext';
 
 export default function FileUpload({ onUploadSuccess }: { onUploadSuccess?: (data: any) => void }) {
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<{ success: boolean, message: string, data?: any } | null>(null);
-  const [bankName, setBankName] = useState('');
+  const { bankName, setBankName } = useBankFilter();
   const inputRef = useRef(null);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -72,16 +74,7 @@ export default function FileUpload({ onUploadSuccess }: { onUploadSuccess?: (dat
           onChange={setBankName}
           options={[
             { label: 'Auto-detect', value: '' },
-            { label: 'HDFC Bank', value: 'hdfc' },
-            { label: 'Axis Bank', value: 'axis' },
-            { label: 'ICICI Bank', value: 'icici' },
-            { label: 'SBI', value: 'sbi' },
-            { label: 'HSBC', value: 'hsbc' },
-            { label: 'Bank of India (BOI)', value: 'boi' },
-            { label: 'Bank of Baroda (BOB)', value: 'bob' },
-            { label: 'Kotak Mahindra', value: 'kotak' },
-            { label: 'Canara Bank', value: 'canara' },
-            { label: 'American Express', value: 'amex' },
+            ...BANK_OPTIONS.filter((o: { label: string, value: string }) => o.value !== '')
           ]}
           style={{ maxWidth: 300 }}
         />
