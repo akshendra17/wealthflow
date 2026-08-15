@@ -62,8 +62,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -86,6 +87,21 @@ async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
                 "code": exc.code,
                 "message": exc.message,
                 "details": getattr(exc, "errors", None),
+            }
+        },
+    )
+
+
+# Catch-all exception handler to prevent unhandled 500 errors from losing CORS headers
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    logger.error("unhandled_server_error", exc_info=str(exc))
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": {
+                "code": "INTERNAL_SERVER_ERROR",
+                "message": "An internal server error occurred.",
             }
         },
     )

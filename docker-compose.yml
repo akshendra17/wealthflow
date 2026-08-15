@@ -25,7 +25,7 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://txnnova:txnnova_dev_2026@db:5432/txnnova
-      - CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
+      - CORS_ORIGINS=["http://localhost:5173","http://localhost:3000","https://txnnova.byakshendra.in","https://www.txnnova.byakshendra.in"]
       - DEBUG=true
     depends_on:
       db:
