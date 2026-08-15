@@ -4,15 +4,15 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: wealthflow
-      POSTGRES_USER: wealthflow
-      POSTGRES_PASSWORD: wealthflow_dev_2026
+      POSTGRES_DB: txnnova
+      POSTGRES_USER: txnnova
+      POSTGRES_PASSWORD: txnnova_dev_2026
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wealthflow"]
+      test: ["CMD-SHELL", "pg_isready -U txnnova"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -24,7 +24,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://wealthflow:wealthflow_dev_2026@db:5432/wealthflow
+      - DATABASE_URL=postgresql+asyncpg://txnnova:txnnova_dev_2026@db:5432/txnnova
       - CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
       - DEBUG=true
     depends_on:

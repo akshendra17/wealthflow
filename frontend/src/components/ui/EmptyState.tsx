@@ -28,7 +28,7 @@ export default function EmptyState({
   return (
     <div className="glass-card animate-in" style={styles.container}>
       <div style={styles.iconContainer}>
-        <FileText size={32} color="var(--color-secondary)" />
+        <FileText size={32} color="var(--color-primary)" />
       </div>
       <h3 style={styles.title}>{title}</h3>
       <p style={styles.description}>{description}</p>
@@ -56,7 +56,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: 64,
     height: 64,
     borderRadius: 'var(--radius-full)',
-    background: 'rgba(255, 255, 255, 0.05)',
+    background: 'var(--color-primary-muted)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -70,7 +70,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   description: {
     fontSize: 'var(--text-base)',
-    color: 'var(--color-text-secondary)',
+    color: 'var(--color-on-surface-variant)',
     maxWidth: 400,
     marginBottom: 'var(--space-6)',
     lineHeight: 1.5,

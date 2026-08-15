@@ -1,23 +1,63 @@
 import React from 'react';
+import { X } from 'lucide-react';
 import { CATEGORY_CONFIG } from '../../utils/constants';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 import type { Transaction } from '../../types';
 
-export default function TransactionList({ transactions }: { transactions: Transaction[] }) {
+interface TransactionListProps {
+  transactions: Transaction[];
+  filterCategory?: string | null;
+  onResetFilter?: () => void;
+}
+
+export default function TransactionList({
+  transactions,
+  filterCategory = null,
+  onResetFilter,
+}: TransactionListProps) {
   if (!transactions?.length) {
     return (
-      <div className="glass-card" style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
-        <p className="text-muted">No transactions found.</p>
+      <div className="glass-card animate-in" style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
+        <p className="text-muted">
+          {filterCategory
+            ? `No transactions found for ${filterCategory}.`
+            : 'No transactions found.'}
+        </p>
+        {filterCategory && onResetFilter && (
+          <button className="btn btn-ghost btn-sm" onClick={onResetFilter} style={{ marginTop: 'var(--space-4)' }}>
+            Reset filter
+          </button>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="glass-card" style={styles.container}>
+    <div className="glass-card animate-in-scale" style={styles.container} key={filterCategory ?? 'all'}>
       <div style={styles.header}>
-        <h3 style={styles.title}>Recent Transactions</h3>
-        <span className="text-caption">{transactions.length} items</span>
+        <div style={styles.headerLeft}>
+          <h3 style={styles.title}>Recent Transactions</h3>
+          {filterCategory && (
+            <span className="filter-chip">
+              {CATEGORY_CONFIG[filterCategory]?.icon} {filterCategory}
+            </span>
+          )}
+        </div>
+        <div style={styles.headerRight}>
+          {filterCategory && onResetFilter && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={onResetFilter}
+              style={styles.resetBtn}
+            >
+              <X size={14} />
+              Reset
+            </button>
+          )}
+          <span className="text-caption">{transactions.length} items</span>
+        </div>
       </div>
       <div style={styles.list}>
         {transactions.map((txn, idx) => {
@@ -28,17 +68,15 @@ export default function TransactionList({ transactions }: { transactions: Transa
               key={txn.id}
               style={{
                 ...styles.row,
-                animationDelay: `${idx * 0.04}s`,
+                animationDelay: `${idx * 50}ms`,
                 borderBottom: idx < transactions.length - 1 ? '1px solid var(--glass-border)' : 'none',
               }}
-              className="animate-in"
+              className="animate-in tx-row"
             >
-              {/* Icon */}
               <div style={{ ...styles.icon, background: `${config.color}12`, border: `1px solid ${config.color}25` }}>
                 <span>{config.icon}</span>
               </div>
 
-              {/* Info */}
               <div style={styles.info}>
                 <span style={styles.desc}>{txn.description}</span>
                 <span style={styles.dateCat}>
@@ -47,7 +85,6 @@ export default function TransactionList({ transactions }: { transactions: Transa
                 </span>
               </div>
 
-              {/* Amount */}
               <div style={styles.amountWrap}>
                 <span style={{
                   ...styles.amount,
@@ -78,10 +115,28 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     padding: 'var(--space-5) var(--space-6)',
     borderBottom: '1px solid var(--glass-border)',
+    gap: 'var(--space-4)',
+    flexWrap: 'wrap',
+  },
+  headerLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'var(--space-3)',
+    flexWrap: 'wrap',
+  },
+  headerRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'var(--space-3)',
   },
   title: {
     fontSize: 'var(--text-h3)',
     fontWeight: 600,
+  },
+  resetBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 'var(--space-1)',
   },
   list: {
     maxHeight: 480,
@@ -92,7 +147,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     gap: 'var(--space-4)',
     padding: 'var(--space-4) var(--space-6)',
-    transition: 'background var(--transition-fast)',
+    transition: 'background-color var(--transition-base)',
     cursor: 'default',
   },
   icon: {

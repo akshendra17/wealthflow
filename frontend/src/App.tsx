@@ -83,7 +83,7 @@ function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-layout">
       <Sidebar activePage={getActivePage(location.pathname)} onNavigate={handleNavigate} />
-      <TopBar title={PAGE_TITLES[location.pathname] || 'WealthFlow'} />
+      <TopBar title={PAGE_TITLES[location.pathname] || 'TxnNova'} />
       <main className="main-content">
         {children}
       </main>

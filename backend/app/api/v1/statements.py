@@ -31,6 +31,7 @@ logger = structlog.get_logger()
 async def upload_statement(
     file: UploadFile = File(...),
     bank_name: Optional[str] = Form(None),
+    password: Optional[str] = Form(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -43,6 +44,7 @@ async def upload_statement(
             file_content=content,
             user_id=current_user.id,
             bank_name=bank_name,
+            password=password,
         )
         return statement
     except DuplicateError as e:

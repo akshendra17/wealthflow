@@ -53,6 +53,7 @@ export default function Transactions() {
           placeholder="Search descriptions..."
           value={filters.search}
           onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
+          className="input"
           style={styles.searchInput}
         />
         <Select
@@ -127,13 +128,14 @@ const styles: Record<string, React.CSSProperties> = {
   searchInput: {
     flex: 1,
     padding: 'var(--space-3) var(--space-4)',
-    background: 'var(--color-surface-container)',
+    background: 'var(--color-surface)',
     border: '1px solid var(--glass-border)',
     borderRadius: 'var(--radius-lg)',
     color: 'var(--color-on-surface)',
     fontSize: 'var(--text-small)',
     fontFamily: 'var(--font-body)',
     outline: 'none',
+    transition: 'border-color var(--transition-base), box-shadow var(--transition-base)',
   },
   select: {
     padding: 'var(--space-3) var(--space-4)',

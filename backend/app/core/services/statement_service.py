@@ -34,6 +34,7 @@ class StatementService:
         file_content: bytes,
         user_id: uuid.UUID,
         bank_name: Optional[str] = None,
+        password: Optional[str] = None,
     ) -> Statement:
         """Upload a statement file, parse it, categorize transactions, and store everything."""
         # Validate file type
@@ -56,7 +57,7 @@ class StatementService:
 
         # Parse the file
         if file_ext == ".pdf":
-            result: ParseResult = parse_pdf(file_content, bank_name=bank_name)
+            result: ParseResult = parse_pdf(file_content, bank_name=bank_name, password=password)
         else:
             result: ParseResult = parse_csv(file_content, bank_name=bank_name)
 

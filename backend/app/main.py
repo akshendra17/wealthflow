@@ -1,4 +1,4 @@
-"""WealthFlow API — FastAPI application factory."""
+"""TxnNova API — FastAPI application factory."""
 
 from __future__ import annotations
 

@@ -3,69 +3,93 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { CATEGORY_CONFIG } from '../../utils/constants';
 import { formatCurrency } from '../../utils/formatters';
 
-export default function CategoryRingChart({ categories, totalExpenses }: { categories: any[], totalExpenses: number }) {
+interface CategoryRingChartProps {
+  categories: any[];
+  totalExpenses: number;
+  selectedCategory?: string | null;
+  onCategorySelect?: (category: string) => void;
+}
+
+export default function CategoryRingChart({
+  categories,
+  totalExpenses,
+  selectedCategory = null,
+  onCategorySelect,
+}: CategoryRingChartProps) {
   if (!categories?.length) return null;
 
   const data = categories.map((c) => ({
     name: c.category,
     value: c.total_amount,
-    color: CATEGORY_CONFIG[c.category]?.color || '#859399',
+    color: CATEGORY_CONFIG[c.category]?.color || '#94A3B8',
     icon: CATEGORY_CONFIG[c.category]?.icon || '📦',
   }));
 
+  const displayTotal = selectedCategory
+    ? data.find((d) => d.name === selectedCategory)?.value ?? totalExpenses
+    : totalExpenses;
+
   return (
-    <div className="glass-card" style={styles.container}>
+    <div className="glass-card chart-card" style={styles.container}>
       <div style={styles.header}>
         <h3 style={styles.title}>Spending Distribution</h3>
       </div>
-      <div style={styles.chartWrap}>
-        <ResponsiveContainer width="100%" height={280}>
+      <div style={styles.chartWrap} className="chart-card-body">
+        <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={80}
-              outerRadius={120}
+              innerRadius="55%"
+              outerRadius="80%"
               paddingAngle={2}
               dataKey="value"
               stroke="none"
+              onClick={(_, index) => onCategorySelect?.(data[index].name)}
             >
               {data.map((entry) => (
                 <Cell
                   key={entry.name}
                   fill={entry.color}
-                  style={{
-                    filter: `drop-shadow(0 0 6px ${entry.color}50)`,
-                    cursor: 'pointer',
-                  }}
+                  opacity={
+                    selectedCategory && selectedCategory !== entry.name ? 0.35 : 1
+                  }
+                  style={{ cursor: onCategorySelect ? 'pointer' : 'default' }}
                 />
               ))}
             </Pie>
             <Tooltip
               contentStyle={styles.tooltip}
               formatter={(value: any) => formatCurrency(value as number)}
-              labelStyle={{ color: '#e5e2e1', fontWeight: 600 }}
+              labelStyle={{ color: '#0F172A', fontWeight: 600 }}
             />
           </PieChart>
         </ResponsiveContainer>
 
-        {/* Center label */}
         <div style={styles.centerLabel}>
-          <span className="text-caption">Total</span>
-          <span style={styles.centerAmount}>{formatCurrency(totalExpenses)}</span>
+          <span className="text-caption">{selectedCategory || 'Total'}</span>
+          <span style={styles.centerAmount}>{formatCurrency(displayTotal)}</span>
         </div>
       </div>
 
-      {/* Legend */}
       <div style={styles.legend}>
-        {data.slice(0, 6).map((item) => (
-          <div key={item.name} style={styles.legendItem}>
-            <span style={{ ...styles.legendDot, background: item.color }} />
-            <span style={styles.legendLabel}>{item.icon} {item.name}</span>
-            <span style={styles.legendValue}>{formatCurrency(item.value)}</span>
-          </div>
-        ))}
+        {data.slice(0, 6).map((item) => {
+          const isSelected = selectedCategory === item.name;
+          return (
+            <button
+              key={item.name}
+              type="button"
+              className={`category-legend-btn ${isSelected ? 'category-legend-btn--selected' : ''}`}
+              onClick={() => onCategorySelect?.(item.name)}
+              aria-pressed={isSelected}
+            >
+              <span style={{ ...styles.legendDot, background: item.color }} />
+              <span style={styles.legendLabel}>{item.icon} {item.name}</span>
+              <span style={styles.legendValue}>{formatCurrency(item.value)}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -77,6 +101,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   header: {
     marginBottom: 'var(--space-2)',
+    flexShrink: 0,
   },
   title: {
     fontSize: 'var(--text-h3)',
@@ -84,6 +109,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   chartWrap: {
     position: 'relative',
+    minHeight: 240,
   },
   centerLabel: {
     position: 'absolute',
@@ -94,6 +120,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
+    pointerEvents: 'none',
   },
   centerAmount: {
     fontFamily: 'var(--font-heading)',
@@ -102,22 +129,18 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'var(--color-on-surface)',
   },
   tooltip: {
-    background: 'rgba(20, 20, 20, 0.95)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: '#FFFFFF',
+    border: '1px solid #E2E8F0',
     borderRadius: 12,
     padding: '10px 14px',
+    boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)',
   },
   legend: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 'var(--space-2)',
-    marginTop: 'var(--space-2)',
-  },
-  legendItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-3)',
-    padding: 'var(--space-1) 0',
+    gap: 'var(--space-1)',
+    marginTop: 'var(--space-4)',
+    flexShrink: 0,
   },
   legendDot: {
     width: 8,

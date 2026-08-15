@@ -46,7 +46,7 @@ export default function Register() {
         <div className="auth-branding">
           <h1>Start Your Journey.</h1>
           <p>
-            Join WealthFlow today. Get clear insights into your spending habits 
+            Join TxnNova today. Get clear insights into your spending habits 
             and take control of your financial future.
           </p>
         </div>

@@ -46,7 +46,7 @@ export default function Select({
     >
       <button
         type="button"
-        className="select-trigger glass-card glass-card--interactive"
+        className="select-trigger glass-card"
         onClick={() => setIsOpen(!isOpen)}
         style={{
           display: 'flex',
@@ -55,7 +55,7 @@ export default function Select({
           width: '100%',
           padding: 'var(--space-2) var(--space-4)',
           minHeight: '40px',
-          background: 'var(--color-surface-container)',
+          background: 'var(--color-surface)',
           border: '1px solid var(--glass-border)',
           borderRadius: 'var(--radius-lg)',
           color: selectedOption ? 'var(--color-on-surface)' : 'var(--color-on-surface-variant)',
@@ -64,6 +64,8 @@ export default function Select({
           cursor: 'pointer',
           outline: 'none',
           gap: 'var(--space-3)',
+          boxShadow: 'var(--shadow-sm)',
+          transition: 'border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-fast)',
         }}
       >
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -73,7 +75,7 @@ export default function Select({
           size={16}
           style={{
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s ease',
+            transition: 'transform var(--transition-base)',
             color: 'var(--color-outline)',
             flexShrink: 0,
           }}
@@ -92,8 +94,9 @@ export default function Select({
             overflowY: 'auto',
             zIndex: 50,
             padding: 'var(--space-1)',
-            animationDuration: '0.15s',
-            background: 'var(--color-surface-container-highest)',
+            transformOrigin: 'top center',
+            background: 'var(--color-surface)',
+            boxShadow: 'var(--shadow-lg)',
           }}
         >
           {options.map((option) => {
@@ -113,17 +116,17 @@ export default function Select({
                   width: '100%',
                   padding: 'var(--space-2) var(--space-3)',
                   border: 'none',
-                  background: isSelected ? 'rgba(0, 209, 255, 0.1)' : 'transparent',
-                  color: isSelected ? 'var(--color-primary)' : 'var(--color-on-surface)',
+                  background: isSelected ? 'var(--color-primary-muted)' : 'transparent',
+                  color: isSelected ? 'var(--color-primary-dim)' : 'var(--color-on-surface)',
                   fontSize: 'var(--text-small)',
                   fontFamily: 'var(--font-body)',
                   textAlign: 'left',
                   cursor: 'pointer',
                   borderRadius: 'var(--radius-md)',
-                  transition: 'background 0.1s ease',
+                  transition: 'background-color var(--transition-fast)',
                 }}
                 onMouseEnter={(e) => {
-                  if (!isSelected) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                  if (!isSelected) e.currentTarget.style.background = 'var(--color-surface-container-low)';
                 }}
                 onMouseLeave={(e) => {
                   if (!isSelected) e.currentTarget.style.background = 'transparent';

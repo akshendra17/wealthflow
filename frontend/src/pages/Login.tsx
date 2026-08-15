@@ -31,7 +31,7 @@ export default function Login() {
         <div className="auth-branding">
           <h1>Master Your Finances.</h1>
           <p>
-            Welcome back to WealthFlow. Sign in to access your personalized dashboard, 
+            Welcome back to TxnNova. Sign in to access your personalized dashboard, 
             track expenses, and make smarter financial decisions.
           </p>
         </div>
@@ -107,7 +107,7 @@ export default function Login() {
 
           <div className="auth-footer">
             <p>
-              New to WealthFlow?{' '}
+              New to TxnNova?{' '}
               <Link to="/register" className="text-button">
                 Create an account
               </Link>

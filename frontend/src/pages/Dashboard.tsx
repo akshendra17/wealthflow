@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { TrendingDown, TrendingUp, DollarSign, CreditCard, ArrowUpRight } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { TrendingDown, TrendingUp, DollarSign, CreditCard, ArrowUpRight, X } from 'lucide-react';
 import { getDashboard, getTransactions } from '../services/api';
 import { formatCurrency, formatPercent } from '../utils/formatters';
 import { MONTH_NAMES } from '../utils/constants';
@@ -17,13 +17,21 @@ export default function Dashboard() {
   const [dashboard, setDashboard] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const transactionsRef = useRef<HTMLDivElement>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [dashData, txnData] = await Promise.all([
         getDashboard(bankName || undefined),
-        getTransactions({ page: 1, pageSize: 15, type: 'DEBIT', bankName: bankName || undefined }),
+        getTransactions({
+          page: 1,
+          pageSize: 15,
+          type: 'DEBIT',
+          bankName: bankName || undefined,
+          category: categoryFilter || undefined,
+        }),
       ]);
       setDashboard(dashData);
       setTransactions(txnData.items);
@@ -32,11 +40,22 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [bankName, categoryFilter]);
 
   useEffect(() => {
     fetchData();
-  }, [bankName]);
+  }, [fetchData]);
+
+  const handleCategorySelect = (category: string) => {
+    setCategoryFilter((prev) => (prev === category ? null : category));
+    requestAnimationFrame(() => {
+      transactionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
+
+  const handleResetFilter = () => {
+    setCategoryFilter(null);
+  };
 
   if (loading) {
     return (
@@ -54,7 +73,6 @@ export default function Dashboard() {
 
   return (
     <div>
-      {/* ── Filters ── */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 'var(--space-6)' }}>
         <Select
           value={bankName}
@@ -64,9 +82,7 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* ── Hero Section ── */}
       <div style={styles.heroRow} className="animate-in">
-        {/* Total Expenses Card */}
         <div className="glass-card" style={styles.heroCard}>
           <div style={styles.heroInner}>
             <div>
@@ -82,7 +98,7 @@ export default function Dashboard() {
                 <div style={{
                   ...styles.momBadge,
                   color: mom <= 0 ? 'var(--color-tertiary)' : 'var(--color-error)',
-                  background: mom <= 0 ? 'rgba(0, 252, 146, 0.1)' : 'rgba(255, 180, 171, 0.1)',
+                  background: mom <= 0 ? 'var(--color-success-muted)' : 'var(--color-error-muted)',
                 }}>
                   {mom <= 0 ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
                   {formatPercent(mom)} from last month
@@ -93,11 +109,8 @@ export default function Dashboard() {
               <DollarSign size={32} color="var(--color-primary)" />
             </div>
           </div>
-          {/* Decorative gradient */}
-          <div style={styles.heroGradient} />
         </div>
 
-        {/* Quick Stats */}
         <div className="glass-card" style={styles.quickStats}>
           <div style={styles.quickRow}>
             <div style={styles.quickItem}>
@@ -121,18 +134,41 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Category Cards Grid ── */}
       {hasData && dashboard.categories?.length > 0 && (
         <div style={styles.section} className="animate-in animate-in-delay-2">
-          <h2 style={styles.sectionTitle}>Spending Breakdown</h2>
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionTitle}>Spending Breakdown</h2>
+            {categoryFilter && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={handleResetFilter}
+                style={styles.resetBtn}
+              >
+                <X size={14} />
+                Reset filter
+              </button>
+            )}
+          </div>
           <div className="carousel">
-            {dashboard.categories.slice(0, 8).map((cat: any) => (
-              <div key={cat.category} style={{ minWidth: 260, flexShrink: 0 }}>
+            {dashboard.categories.slice(0, 8).map((cat: any, idx: number) => (
+              <div
+                key={cat.category}
+                style={{
+                  minWidth: 260,
+                  flexShrink: 0,
+                  animationDelay: `${idx * 60}ms`,
+                  opacity: 0,
+                }}
+                className="animate-in"
+              >
                 <StatCard
                   category={cat.category}
                   amount={cat.total_amount}
                   count={cat.transaction_count}
                   percentage={cat.percentage}
+                  selected={categoryFilter === cat.category}
+                  onClick={handleCategorySelect}
                 />
               </div>
             ))}
@@ -140,9 +176,8 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Charts Row ── */}
       {hasData && (
-        <div style={styles.chartRow} className="animate-in animate-in-delay-3">
+        <div className="chart-row animate-in animate-in-delay-3" style={styles.chartRow}>
           <div style={{ flex: 2 }}>
             <TrendChart trends={dashboard.trends} />
           </div>
@@ -150,17 +185,24 @@ export default function Dashboard() {
             <CategoryRingChart
               categories={dashboard.categories}
               totalExpenses={dashboard.total_expenses}
+              selectedCategory={categoryFilter}
+              onCategorySelect={handleCategorySelect}
             />
           </div>
         </div>
       )}
 
-      {/* ── Transactions ── */}
-      {transactions.length > 0 && (
-        <div style={styles.section} className="animate-in animate-in-delay-4">
-          <TransactionList transactions={transactions} />
-        </div>
-      )}
+      <div ref={transactionsRef} style={styles.section}>
+        {(transactions.length > 0 || categoryFilter) && (
+          <div className="animate-in animate-in-delay-4">
+            <TransactionList
+              transactions={transactions}
+              filterCategory={categoryFilter}
+              onResetFilter={handleResetFilter}
+            />
+          </div>
+        )}
+      </div>
 
       {!hasData && (
         <EmptyState />
@@ -215,21 +257,11 @@ const styles: Record<string, React.CSSProperties> = {
     width: 60,
     height: 60,
     borderRadius: 'var(--radius-xl)',
-    background: 'rgba(0, 209, 255, 0.08)',
-    border: '1px solid rgba(0, 209, 255, 0.15)',
+    background: 'var(--color-primary-muted)',
+    border: '1px solid rgba(13, 148, 136, 0.15)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  heroGradient: {
-    position: 'absolute',
-    bottom: -40,
-    right: -40,
-    width: 200,
-    height: 200,
-    borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(0,209,255,0.1) 0%, transparent 70%)',
-    pointerEvents: 'none',
   },
   quickStats: {
     padding: 'var(--space-6)',
@@ -262,14 +294,24 @@ const styles: Record<string, React.CSSProperties> = {
   section: {
     marginTop: 'var(--space-8)',
   },
+  sectionHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 'var(--space-5)',
+    gap: 'var(--space-4)',
+  },
   sectionTitle: {
     fontSize: 'var(--text-h2)',
     fontWeight: 600,
-    marginBottom: 'var(--space-5)',
+    marginBottom: 0,
+  },
+  resetBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 'var(--space-1)',
   },
   chartRow: {
-    display: 'flex',
-    gap: 'var(--space-6)',
     marginTop: 'var(--space-8)',
   },
 };
