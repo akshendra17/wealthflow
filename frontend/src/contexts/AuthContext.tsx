@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { login as apiLogin, registerUser as apiRegister, getCurrentUser, setAccessToken, logoutUser } from '../services/api';
+import { login as apiLogin, registerUser as apiRegister, setAccessToken, logoutUser, refreshSession } from '../services/api';
 import type { User } from '../types';
 
 export interface AuthResponse {
@@ -26,14 +26,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // The API request interceptor will handle the refresh if access token is missing/expired
-        const userData = await getCurrentUser();
-        setUser(userData);
+        const session = await refreshSession();
+        if (!session) return;
+        setUser(session.user);
         setIsAuthenticated(true);
-      } catch (error) {
-        // Expected if no cookie/session
+      } catch {
+        // Expected when logged out or API unreachable
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     initializeAuth();

@@ -107,6 +107,27 @@ export async function logoutUser(): Promise<void> {
   return request('/auth/logout', { method: 'POST' });
 }
 
+/** Restore access token from HttpOnly refresh cookie (same-origin /api). */
+export async function refreshSession(): Promise<{ access_token: string; user: User } | null> {
+  try {
+    const refreshResponse = await fetch(`${API_BASE}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+    if (!refreshResponse.ok) {
+      accessToken = null;
+      return null;
+    }
+    const data = await refreshResponse.json();
+    accessToken = data.access_token;
+    return data;
+  } catch {
+    accessToken = null;
+    return null;
+  }
+}
+
 
 // ── Statements ──
 export async function uploadStatement(file: File, options?: { bankName?: string | null, password?: string }): Promise<Statement> {

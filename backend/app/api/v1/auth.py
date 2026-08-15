@@ -29,13 +29,21 @@ from app.schemas.auth import (
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+def _cookie_secure() -> bool:
+    """Secure cookies everywhere except local development."""
+    return settings.environment != "development"
+
+
 def _set_refresh_cookie(response: Response, refresh_token: str):
+    # SameSite=Lax is correct for same-site FE↔API (Vercel /api proxy or api.* subdomain).
+    # Cross-site (e.g. *.vercel.app → *.onrender.com) would need SameSite=None + Secure.
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False if settings.environment == "development" else True,
+        secure=_cookie_secure(),
         samesite="lax",
+        path="/",
         max_age=settings.refresh_token_expire_days * 24 * 60 * 60,
     )
 
@@ -113,8 +121,9 @@ async def logout(response: Response):
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        secure=False if settings.environment == "development" else True,
-        samesite="lax"
+        secure=_cookie_secure(),
+        samesite="lax",
+        path="/",
     )
     return {"message": "Logged out successfully"}
 
