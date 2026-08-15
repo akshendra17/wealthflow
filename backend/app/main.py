@@ -51,6 +51,8 @@ app = FastAPI(
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
+    # Prevent 307 redirects to the upstream Render host when proxied via Vercel /api.
+    redirect_slashes=False,
 )
 
 # Attach rate limiter

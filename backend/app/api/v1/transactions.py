@@ -24,7 +24,8 @@ from app.schemas.transaction import (
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
 
-@router.get("/", response_model=TransactionListResponse)
+@router.get("", response_model=TransactionListResponse)
+@router.get("/", response_model=TransactionListResponse, include_in_schema=False)
 async def list_transactions(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),

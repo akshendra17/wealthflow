@@ -23,7 +23,7 @@ export default function Dashboard() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [dashData, txnData] = await Promise.all([
+      const [dashResult, txnResult] = await Promise.allSettled([
         getDashboard(bankName || undefined),
         getTransactions({
           page: 1,
@@ -33,10 +33,20 @@ export default function Dashboard() {
           category: categoryFilter || undefined,
         }),
       ]);
-      setDashboard(dashData);
-      setTransactions(txnData.items);
-    } catch (err: any) {
-      console.error(err.message);
+
+      if (dashResult.status === 'fulfilled') {
+        setDashboard(dashResult.value);
+      } else {
+        console.error('Dashboard fetch failed:', dashResult.reason);
+        setDashboard(null);
+      }
+
+      if (txnResult.status === 'fulfilled') {
+        setTransactions(txnResult.value.items ?? []);
+      } else {
+        console.error('Transactions fetch failed:', txnResult.reason);
+        setTransactions([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -67,7 +77,11 @@ export default function Dashboard() {
     );
   }
 
-  const hasData = dashboard?.has_data;
+  const hasData = Boolean(
+    dashboard?.has_data
+    || (dashboard?.categories?.length ?? 0) > 0
+    || (dashboard?.total_expenses ?? 0) > 0,
+  );
   const mom = dashboard?.trends?.mom_change_pct;
   const latestMonth = dashboard?.latest_month;
 
@@ -87,7 +101,7 @@ export default function Dashboard() {
           <div style={styles.heroInner}>
             <div>
               <span className="text-caption">
-                {hasData
+                {hasData && latestMonth
                   ? `${MONTH_NAMES[latestMonth.month]} ${latestMonth.year}`
                   : 'No Data Yet'}
               </span>

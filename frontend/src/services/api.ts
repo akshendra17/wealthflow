@@ -35,6 +35,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, isRetr
   const config: RequestOptions = {
     headers: { 'Content-Type': 'application/json', ...options.headers },
     credentials: 'include',
+    redirect: 'follow',
     ...options,
   };
 
@@ -72,6 +73,14 @@ async function request<T>(endpoint: string, options: RequestOptions = {}, isRetr
     } catch (err) {
       accessToken = null;
     }
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('text/html')) {
+    throw new ApiError(
+      `API returned HTML instead of JSON for ${endpoint}. Check Vercel /api proxy routing.`,
+      response.status,
+    );
   }
 
   if (!response.ok) {
@@ -143,7 +152,7 @@ export async function uploadStatement(file: File, options?: { bankName?: string 
 }
 
 export async function getStatements(): Promise<Statement[]> {
-  return request('/statements/');
+  return request('/statements');
 }
 
 export async function getStatement(id: string): Promise<Statement> {
@@ -182,7 +191,7 @@ export async function getTransactions(params: TransactionParams = {}): Promise<{
   if (params.bankName) searchParams.set('bank_name', params.bankName);
   
   const query = searchParams.toString();
-  return request(`/transactions/${query ? `?${query}` : ''}`);
+  return request(`/transactions${query ? `?${query}` : ''}`);
 }
 
 export async function categorizeTransaction(id: string, category: string, subcategory: string | null = null): Promise<Transaction> {
@@ -215,9 +224,9 @@ export async function getTrends(months: number = 6, bankName?: string): Promise<
 
 // ── Categories ──
 export async function getCategories(): Promise<Category[]> {
-  return request('/categories/');
+  return request('/categories');
 }
 
 export async function createCategory(data: Partial<Category>): Promise<Category> {
-  return request('/categories/', { method: 'POST', body: JSON.stringify(data) });
+  return request('/categories', { method: 'POST', body: JSON.stringify(data) });
 }

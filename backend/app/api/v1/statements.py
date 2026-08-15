@@ -61,7 +61,8 @@ async def upload_statement(
         )
 
 
-@router.get("/", response_model=list[StatementRead])
+@router.get("", response_model=list[StatementRead])
+@router.get("/", response_model=list[StatementRead], include_in_schema=False)
 async def list_statements(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
