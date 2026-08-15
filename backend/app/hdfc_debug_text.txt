@@ -1,0 +1,174 @@
+=== HDFC PDF DEBUG DUMP ===
+Pages: 3
+Total chars: 7230
+Password provided: YES
+Statement period: 2026-None
+
+=== RAW TEXT (repr of each line) ===
+L000: 'Regalia Credit Card Statement'
+L001: 'HSN Code: 997113 HDFC Bank Credit Cards GSTIN: 33AAACH2702H2Z6'
+L002: 'AKSHENDRA KUMAR Credit Card No. 552260XXXXXX0669'
+L003: 'SUMITRA ENCLAVE FLAT NO 201 RAJENDRA Alternate Account Number 0001018720005430468'
+L004: 'NAGAR'
+L005: 'Statement Date 19 Jul, 2026'
+L006: 'ROAD NO 8B'
+L007: 'PATNA 800016 BIH Billing Period 20 Jun, 2026 - 19 Jul, 2026'
+L008: 'Email : KUMAR.AKSHENDRA201@GMAIL.COM CKYC ID'
+L009: 'To update personal details : Change of Address: click here | Change of email-id: click here | Change of Mobile number: click here'
+L010: 'To update any other personal details, please write a letter to : The Manager, HDFC Bank Cards Division, Door No 94 SP, Estate Bus Stand, Wavin Main Road, Mogappair West, Chennai - 600058'
+L011: 'PAYMENTS/CREDITS PURCHASES/DEBIT'
+L012: 'PREVIOUS STATEMENT DUES FINANCE CHARGES TOTAL AMOUNT DUE'
+L013: 'RECEIVED (Current Billing Cycle)'
+L014: '_ C16,130.00'
+L015: 'C22,456.50 C22,457.00 + C16,130.46 + C0.00 ='
+L016: 'TOTAL CREDIT LIMIT'
+L017: '(Including Cash) AVAILABLE CREDIT LIMIT AVAILABLE CASH LIMIT MINIMUM DUE DUE DATE'
+L018: 'C2,00,000 C1,27,207 C80,000 C12,542.00 08 Aug, 2026'
+L019: 'Past Dues OVER LIMIT 3 MONTHS + 2 MONTHS 1 MONTH CURRENT DUES MINIMUM DUES'
+L020: '(if any)'
+L021: 'C0.00 C0.00 C0.00 C0.00 C12,542.00 C12,542.00'
+L022: 'Benefits on your card'
+L023: 'IMPORTANT INFORMATION'
+L024: '1. WEF NOVEMBER 1ST 2025,THE VALUE FOR CASHBACK REDEMPTION AGAINST THE STATEMENT BALANCE WILL BE UP TO 20 PAISE PER'
+L025: 'POINT.'
+L026: '2. MISSED PAYMENT OF MINIMUM AMOUNT DUE WITHIN 3 GRACE DAYS OF DUE DATE WILL BE REPORTED TO CREDIT INFORMATION'
+L027: 'COMPANIES'
+L028: '3. COMPLIMENTARY INSURANCE FROM HDFC ERGO.TOLL FREE:+800 08250825/01204507250 (CHARGEABLE) EMAIL:'
+L029: 'BANKCLAIMS@HDFCERGO.COM'
+L030: 'Reward Points Opening Balance Feature + Bonus Reward Disbursed Adjusted/Lapsed'
+L031: '5,723 Points Earned'
+L032: '5,659 64 0 0'
+L033: 'REDEEM REWARDS POINTS EXPIRING IN 30 DAYS 0 IN 60 DAYS 0'
+L034: '* All contents of the statement will be deemed to be correct and accepted by you, unless you inform us of any discrepancies within 30 days from the date of this statement.'
+L035: '* The available credit limit showed herein takes into account charges incurred but not billed.'
+L036: 'Your Card Control Setting As on : 19 Jul, 2026'
+L037: 'Domestic Transaction International Transaction'
+L038: 'Online POS Tap & Pay Online POS Tap & Pay MODIFY ON MyCards'
+L039: 'ENABLED ENABLED ENABLED ENABLED ENABLED DISABLED Card Control Set Pin'
+L040: 'Purchase Indicator / Insights (PI)'
+L041: 'l INSURANCE l TELECOM & CABLE l l l'
+L042: '81% 19%'
+L043: 'Domestic Transactions'
+L044: 'DATE & TIME TRANSACTION DESCRIPTION REWARDS AMOUNT PI'
+L045: 'AKSHENDRA KUMAR'
+L046: 'IGST-VPS2717151210984-RATE 18.0 -10 (Ref#'
+L047: '19/06/2026| 00:00 C 90.54 l'
+L048: '09999999980619014462723)'
+L049: 'IGST-VPS2717151210990-RATE 18.0 -10 (Ref#'
+L050: '19/06/2026| 00:00 C 28.62 l'
+L051: '09999999980619014462749)'
+L052: 'IGST-VPS2717151210997-RATE 18.0 -10 (Ref#'
+L053: '19/06/2026| 00:00 C 78.30 l'
+L054: '09999999980619014462764)'
+L055: '24/06/2026| 07:51 NETFLIXMUMBAI C 649.00 l'
+L056: 'BPPY CC PAYMENT DP0161811839113itfX (Ref#'
+L057: '30/06/2026| 18:39 + C 22,457.00 l'
+L058: 'ST261820084000010027349)'
+L059: 'Page 1 of 3'
+L060: 'Regalia Credit Card Statement HSN Code: 997113'
+L061: 'HDFC Bank Credit Cards GSTIN: 33AAACH2702H2Z6'
+L062: 'offers on your card'
+L063: 'Domestic Transactions'
+L064: 'DATE & TIME TRANSACTION DESCRIPTION REWARDS AMOUNT PI'
+L065: '16/07/2026| 07:30 EMI POLICYBAZAARGURGAON C 2,742.00 l'
+L066: '19/07/2026| 00:00 OFFUS EMI,PRIN NB:07,00000134746254 (Ref# 09999999980719014266627) C 9,375.00 l'
+L067: '19/07/2026| 00:00 OFFUS EMI,PRIN NB:04,00000138681974 (Ref# 09999999980719014266643) C 1,068.00 l'
+L068: '19/07/2026| 00:00 OFFUS EMI,PRIN NB:03,00000139718314 (Ref# 09999999980719014266668) C 1,156.00 l'
+L069: '19/07/2026| 00:00 OFFUS EMI,INT NBR:07,00000134746254 (Ref# 09999999980719014266635) C 380.00 l'
+L070: '19/07/2026| 00:00 OFFUS EMI,INT NBR:04,00000138681974 (Ref# 09999999980719014266650) C 144.00 l'
+L071: '19/07/2026| 00:00 OFFUS EMI,INT NBR:03,00000139718314 (Ref# 09999999980719014266676) C 419.00 l'
+L072: 'TRANSACTIONS TOTAL AMOUNT'
+L073: 'Eligible for EMI CONVERT TO EMI'
+L074: '1 C2,742.00'
+L075: 'Rewards Program Points Summary'
+L076: 'SR NO. PROGRAMS BONUS POINTS'
+L077: '1 Reward Points_on_Insurance 52 pts'
+L078: '2 Reward Points_on_Telecom 12 pts'
+L079: 'Total 64 pts'
+L080: 'Smart EMI Loan Summary'
+L081: 'RATE OF INTEREST BALANCE PRINCIPAL BALANCE INTEREST'
+L082: 'LOAN NUMBER BOOKED DATE AMOUNT LOAN TENURE BALANCE TENURE'
+L083: 'P.A% OUTSTANDING PAYABLE'
+L084: '134746254 31/12/2025 C82,216.82 9 Months 16% C19,125.82 C383.00 2 Months'
+L085: '138681974 08/04/2026 C13,284.21 12 Months 17% C9,101.21 C590.00 8 Months'
+L086: '139718314 02/05/2026 C31,856.00 24 Months 17% C28,436.00 C4,639.00 21 Months'
+L087: '*Pre-closure charges as applicable.'
+L088: 'GST Summary'
+L089: 'IGST CGST SGST REVERSAL TOTAL GST'
+L090: 'C197.46 C0 C0 C0 C197.46'
+L091: '*GST levied on statement date is always billed in the subsequent statement.'
+L092: 'Page 2 of 3'
+L093: 'Regalia Credit Card Statement HSN Code: 997113'
+L094: 'HDFC Bank Credit Cards GSTIN: 33AAACH2702H2Z6'
+L095: 'Important Information'
+L096: 'l The "Available Credit Limit" shown in this statement takes into account charges incurred but not due. Please ensure that at least the "Minimum Amount Due" reaches us by the "Due Date".'
+L097: 'l Maintain a healthy credit status: Pay atleast minimum amount by the due date, or within 3 days after, to avoid Defaulter status with Credit Information Companies.'
+L098: 'l If the minimum amount due or part amount less than the total amount due is paid, interest charges are applicable (including fresh purchases, if any) on an average daily reducing balance method.'
+L099: 'l If you miss paying the undisputed minimum amount due within 3 grace days from the due date the bank will report the default to credit information companies and other regulatory / statutory'
+L100: 'authorities as per prevalent regulatory requirements, laws and directions.'
+L101: 'l Effective 15th May 2026, Product Features, Fees & Charges on your credit card will be revised. Please refer to the MITC / product webpage for details.'
+L102: 'l For type and details of insurance on your card please refer https://www.hdfc.bank.in/credit-cards . Insurance provider: HDFC ERGO. Toll Free: +800 08250825/01204507250 (Chargeable) Email:'
+L103: 'bankclaims@hdfcergo.com.T&C'
+L104: 'l To Hotlist your credit card, login into Netbanking, please click here or call our phone banking numbers.'
+L105: 'l Making only the minimum payment every month would result in the repayment stretching over months/years with consequential compounded interest payment on your outstanding balance. The level'
+L106: "of unpaid amount of the bill i.e., part payment beyond 'minimum amount due', at which the interest-free credit period benefits would not be available to cardholders."
+L107: 'l When the card member receives communication from Bank regarding a refund from the merchant for a transaction incurred kindly call Phone-Banking @ 1800 1600 / 1860 2600 to issue DD or to obtain an'
+L108: 'update on the refund. Customers travelling overseas can reach out to +9122 61606160.'
+L109: 'l To know the Voluntary Codes as prescribed by the "The Banking Codes and Standards Board of India (BCSBI)", please click here'
+L110: 'l How to read GST entry in your Credit Card statement:'
+L111: 'GST Entry GST Invoice Number GST State'
+L112: 'Type Rate % Code'
+L113: 'SGST-VPS *********** - Rate 9.0 - 33**** SGST VPS************* 9.0 33'
+L114: '“I/We hereby declare that though our aggregate turnover in any preceding financial year from 2017-18 onwards is more than the aggregate turnover notified under sub-rule (4) of rule 48, we are not required to'
+L115: 'prepare an invoice in terms of the provisions of the said sub-rule.”'
+L116: 'Useful Links'
+L117: 'Statement & Payment MITC (Most Important'
+L118: 'Payment Options Customer Rights Policy'
+L119: 'related information Terms and Conditions)'
+L120: 'Page 3 of 3'
+
+=== TABLES ===
+
+Page 0, Table 0 (2 rows):
+  ["'AKSHENDRA KUMAR Credit Card No. 552260XXXXXX0669\\nSUMITRA ENC'"]
+  ["''"]
+
+Page 0, Table 1 (3 rows):
+  ["'er: c'"]
+  ["'avin'"]
+  ["'='"]
+
+Page 0, Table 2 (2 rows):
+  ["'PAYMENTS/CREDITS PURCHASES/DEBIT\\nRECEIVED (Current Billing C'"]
+  ["'C22,457.00 + C16,130.46'"]
+
+Page 0, Table 3 (2 rows):
+  ["'AVAILABLE CREDIT LIMIT'"]
+  ["'C1,27,207'"]
+
+Page 0, Table 4 (2 rows):
+  ["'Reward Points\\n5,723'", "'O\\n5,'", "''", "''", "''"]
+  ["''", "'P'", "'OINTS EXPIRING'", "'IN 30 DAYS 0'", "'IN 60 DAYS 0'"]
+
+Page 0, Table 5 (6 rows):
+  ["'DATE & TIME TRANSACTION DESCRIPTION REWARDS AMOUNT PI'"]
+  ["'AKSHENDRA KUMAR\\nIGST-VPS2717151210984-RATE 18.0 -10 (Ref#\\n19'"]
+  ["'IGST-VPS2717151210990-RATE 18.0 -10 (Ref#\\n19/06/2026| 00:00 '"]
+  ["'IGST-VPS2717151210997-RATE 18.0 -10 (Ref#\\n19/06/2026| 00:00 '"]
+  ["'24/06/2026| 07:51 NETFLIXMUMBAI C 649.00 l'"]
+  ["'BPPY CC PAYMENT DP0161811839113itfX (Ref#\\n30/06/2026| 18:39 '"]
+
+Page 1, Table 0 (8 rows):
+  ["'DATE & TIME TRANSACTION DESCRIPTION REWARDS AMOUNT PI'"]
+  ["'16/07/2026| 07:30 EMI POLICYBAZAARGURGAON C 2,742.00 l'"]
+  ["'19/07/2026| 00:00 OFFUS EMI,PRIN NB:07,00000134746254 (Ref# '"]
+  ["'19/07/2026| 00:00 OFFUS EMI,PRIN NB:04,00000138681974 (Ref# '"]
+  ["'19/07/2026| 00:00 OFFUS EMI,PRIN NB:03,00000139718314 (Ref# '"]
+  ["'19/07/2026| 00:00 OFFUS EMI,INT NBR:07,00000134746254 (Ref# '"]
+  ["'19/07/2026| 00:00 OFFUS EMI,INT NBR:04,00000138681974 (Ref# '"]
+  ["'19/07/2026| 00:00 OFFUS EMI,INT NBR:03,00000139718314 (Ref# '"]
+
+Page 1, Table 1 (3 rows):
+  ["'SR NO. PROGRAMS BONUS POINTS'", "''"]
+  ["'1'", "'Reward Points_on_Insurance 52 pts'"]
+  ["'2'", "'Reward Points_on_Telecom 12 pts'"]

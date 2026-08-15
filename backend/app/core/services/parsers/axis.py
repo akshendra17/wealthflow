@@ -19,15 +19,23 @@ class AxisParser(BaseBankParser):
         transactions = []
         errors = []
         
-        # Regex for Axis Bank Credit Card transaction line
+        # Pattern A: with cashback column (6 groups)
         # Example: 15/06/2026 PLAYSTATION,SONY PSN MISC STORE 749.00 Dr 7.00 Cr
-        # Sometimes Merchant Category is empty.
-        # So we match Date, then everything until Amount + Dr/Cr + Cashback + Dr/Cr
-        pattern = re.compile(
+        pattern_with_cashback = re.compile(
             r"^(\d{2}/\d{2}/\d{4})\s+"             # Date: DD/MM/YYYY
             r"(.+?)\s+"                            # Description & Merchant
             r"([\d,]+\.\d{2})\s+(Dr|Cr)\s+"        # Amount and Dr/Cr
             r"([\d,]+\.\d{2})\s+(Cr|Dr)$",         # Cashback and Cr/Dr
+            re.IGNORECASE
+        )
+        
+        # Pattern B: without cashback column (4 groups)
+        # Example: 14/06/2026 BBPS PAYMENT RECEIVED - DP016165191110SJLQTG 508.85 Cr
+        # Example: 21/06/2026 AIRTEL PAYMENTS BANK LTD,GURGAON UTILITIES 507.30 Dr
+        pattern_no_cashback = re.compile(
+            r"^(\d{2}/\d{2}/\d{4})\s+"             # Date: DD/MM/YYYY
+            r"(.+?)\s+"                            # Description & Merchant
+            r"([\d,]+\.\d{2})\s+(Dr|Cr)$",         # Amount and Dr/Cr
             re.IGNORECASE
         )
         
@@ -54,33 +62,41 @@ class AxisParser(BaseBankParser):
                     # Stop if we hit Account Summary end or Reward points table
                     if "End of Statement" in line or "Reward Points Balance" in line:
                         break
-                        
-                    match = pattern.match(line)
+                    
+                    # Try pattern A first (with cashback)
+                    match = pattern_with_cashback.match(line)
                     if match:
                         date_str, desc_and_merchant, amt_str, dr_cr, cb_amt, cb_dr_cr = match.groups()
-                        
-                        try:
-                            txn_date = datetime.strptime(date_str, "%d/%m/%Y").date()
-                        except ValueError:
+                    else:
+                        # Try pattern B (without cashback)
+                        match = pattern_no_cashback.match(line)
+                        if match:
+                            date_str, desc_and_merchant, amt_str, dr_cr = match.groups()
+                        else:
                             continue
-                            
-                        # Clean amount
-                        amt_clean = float(amt_str.replace(",", ""))
-                        if amt_clean == 0:
-                            continue
-                            
-                        is_debit = (dr_cr.lower() == "dr")
-                        txn_type = "DEBIT" if is_debit else "CREDIT"
+                    
+                    try:
+                        txn_date = datetime.strptime(date_str, "%d/%m/%Y").date()
+                    except ValueError:
+                        continue
                         
-                        transactions.append(
-                            ParsedTransaction(
-                                transaction_date=txn_date,
-                                description=desc_and_merchant.strip(),
-                                amount=amt_clean,
-                                transaction_type=txn_type,
-                                raw_data={"raw_line": line}
-                            )
+                    # Clean amount
+                    amt_clean = float(amt_str.replace(",", ""))
+                    if amt_clean == 0:
+                        continue
+                        
+                    is_debit = (dr_cr.lower() == "dr")
+                    txn_type = "DEBIT" if is_debit else "CREDIT"
+                    
+                    transactions.append(
+                        ParsedTransaction(
+                            transaction_date=txn_date,
+                            description=desc_and_merchant.strip(),
+                            amount=amt_clean,
+                            transaction_type=txn_type,
+                            raw_data={"raw_line": line}
                         )
+                    )
 
         if not transactions:
             raise ParsingError("Could not extract any transactions from Axis Bank PDF.")

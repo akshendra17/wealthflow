@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, CheckCircle2, AlertCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle2, AlertCircle, AlertTriangle, Loader2, Lock } from 'lucide-react';
 import { uploadStatement, ApiError } from '../../services/api';
 import Select from './Select';
 import { BANK_OPTIONS } from '../../utils/constants';
@@ -10,6 +10,7 @@ export default function FileUpload({ onUploadSuccess }: { onUploadSuccess?: (dat
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<{ type: 'success' | 'error' | 'warning', message: string, data?: any } | null>(null);
   const { bankName, setBankName } = useBankFilter();
+  const [password, setPassword] = useState('');
   const inputRef = useRef(null);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -49,7 +50,7 @@ export default function FileUpload({ onUploadSuccess }: { onUploadSuccess?: (dat
     setUploading(true);
     setResult(null);
     try {
-      const data = await uploadStatement(file, bankName);
+      const data = await uploadStatement(file, { bankName, password: password || undefined });
       setResult({
         type: 'success',
         message: `Parsed ${data.total_transactions} transactions from "${data.original_filename}"`,
@@ -69,22 +70,49 @@ export default function FileUpload({ onUploadSuccess }: { onUploadSuccess?: (dat
 
   return (
     <div>
-      <div style={{ marginBottom: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-        <label htmlFor="bank-select" style={{ fontSize: 'var(--text-small)', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-          Select Bank (Optional)
-        </label>
-        <Select
-          value={bankName}
-          onChange={setBankName}
-          options={[
-            { label: 'Auto-detect', value: '' },
-            ...BANK_OPTIONS.filter((o: { label: string, value: string }) => o.value !== '')
-          ]}
-          style={{ maxWidth: 300 }}
-        />
-        <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-on-surface-variant)' }}>
-          Selecting your bank ensures the most accurate parsing of your statement.
-        </p>
+      <div className="glass-card" style={{ padding: 'var(--space-5)', marginBottom: 'var(--space-6)', display: 'flex', flexWrap: 'wrap', gap: 'var(--space-6)', alignItems: 'flex-start' }}>
+        
+        <div style={{ flex: '1 1 280px', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <label htmlFor="bank-select" style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <FileText size={16} color="var(--color-primary)" />
+            Select Bank <span style={{ color: 'var(--color-on-surface-variant)', fontWeight: 400 }}>(Optional)</span>
+          </label>
+          <Select
+            value={bankName}
+            onChange={setBankName}
+            options={[
+              { label: 'Auto-detect', value: '' },
+              ...BANK_OPTIONS.filter((o: { label: string, value: string }) => o.value !== '')
+            ]}
+          />
+          <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+            Selecting your bank ensures the most accurate parsing.
+          </p>
+        </div>
+
+        <div style={{ flex: '1 1 280px', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <label htmlFor="pdf-password" style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Lock size={16} color="var(--color-warning, #f59f00)" />
+            PDF Password <span style={{ color: 'var(--color-on-surface-variant)', fontWeight: 400 }}>(If protected)</span>
+          </label>
+          <div style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-on-surface-variant)' }}>
+              <Lock size={16} />
+            </div>
+            <input
+              id="pdf-password"
+              type="password"
+              placeholder="Enter PDF password..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input"
+              style={{ width: '100%', paddingLeft: 38, background: 'var(--color-surface-container-low)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-md)', height: 42, color: 'var(--color-on-surface)' }}
+            />
+          </div>
+          <p style={{ fontSize: 'var(--text-caption)', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+            Required only for password-protected bank statements.
+          </p>
+        </div>
       </div>
       <div
         className="glass-card"
@@ -164,16 +192,16 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 'var(--space-8) var(--space-6)',
     textAlign: 'center',
     cursor: 'pointer',
-    transition: 'all var(--transition-base)',
+    transition: 'border-color var(--transition-base), background-color var(--transition-base), box-shadow var(--transition-base)',
     position: 'relative',
     overflow: 'hidden',
     border: '2px dashed var(--glass-border-bright)',
-    background: 'rgba(20, 20, 20, 0.4)',
+    background: 'var(--color-surface-container-low)',
   },
   containerActive: {
     borderColor: 'var(--color-primary)',
-    background: 'rgba(0, 209, 255, 0.05)',
-    boxShadow: 'var(--shadow-glow-primary)',
+    background: 'var(--color-primary-muted)',
+    boxShadow: 'var(--shadow-md)',
   },
   label: {
     display: 'flex',
@@ -186,8 +214,8 @@ const styles: Record<string, React.CSSProperties> = {
     width: 60,
     height: 60,
     borderRadius: '50%',
-    background: 'rgba(0, 209, 255, 0.08)',
-    border: '1px solid rgba(0, 209, 255, 0.2)',
+    background: 'var(--color-primary-muted)',
+    border: '1px solid rgba(13, 148, 136, 0.15)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -212,5 +240,8 @@ const styles: Record<string, React.CSSProperties> = {
   stateText: {
     fontSize: 'var(--text-body)',
     fontWeight: 500,
+    whiteSpace: 'pre-line',
+    maxWidth: '100%',
+    textAlign: 'center',
   },
 };

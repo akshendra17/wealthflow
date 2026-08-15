@@ -13,20 +13,18 @@ export default function Sidebar({ activePage, onNavigate }: { activePage: string
   const { logout } = useAuth();
   return (
     <aside style={styles.sidebar}>
-      {/* Logo */}
       <div style={styles.logo}>
         <div style={styles.logoIcon}>
-          <Wallet size={24} color="#00d1ff" />
+          <Wallet size={22} color="var(--color-primary)" />
         </div>
         <div>
-          <div style={styles.logoText}>WealthFlow</div>
+          <div style={styles.logoText}>TxnNova</div>
           <div style={styles.logoSub}>Finance Dashboard</div>
         </div>
       </div>
 
-      {/* Navigation */}
       <nav style={styles.nav}>
-        <div style={styles.navLabel}>MENU</div>
+        <div style={styles.navLabel}>Menu</div>
         {NAV_ITEMS.map((item) => {
           const isActive = activePage === item.id;
           const Icon = item.icon;
@@ -40,21 +38,20 @@ export default function Sidebar({ activePage, onNavigate }: { activePage: string
               }}
             >
               {isActive && <div style={styles.activeStrip} />}
-              <Icon size={18} style={{ opacity: isActive ? 1 : 0.6 }} />
+              <Icon size={18} style={{ opacity: isActive ? 1 : 0.55 }} />
               <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      {/* Bottom */}
       <div style={styles.bottomSection}>
         <button style={styles.logoutButton} onClick={logout}>
-          <LogOut size={18} style={{ opacity: 0.6 }} />
+          <LogOut size={18} style={{ opacity: 0.55 }} />
           <span>Sign Out</span>
         </button>
         <div style={styles.divider} />
-        <div style={styles.versionTag}>v0.1.0 • Beta</div>
+        <div style={styles.versionTag}>v0.1.0 · Beta</div>
       </div>
     </aside>
   );
@@ -67,14 +64,13 @@ const styles: Record<string, React.CSSProperties> = {
     top: 0,
     bottom: 0,
     width: 'var(--sidebar-width)',
-    background: 'rgba(14, 14, 14, 0.85)',
-    backdropFilter: 'blur(30px)',
-    WebkitBackdropFilter: 'blur(30px)',
+    background: 'var(--color-surface)',
     borderRight: '1px solid var(--glass-border)',
     display: 'flex',
     flexDirection: 'column',
     padding: 'var(--space-6) var(--space-4)',
     zIndex: 100,
+    boxShadow: 'var(--shadow-sm)',
   },
   logo: {
     display: 'flex',
@@ -87,11 +83,11 @@ const styles: Record<string, React.CSSProperties> = {
     width: 40,
     height: 40,
     borderRadius: 'var(--radius-lg)',
-    background: 'rgba(0, 209, 255, 0.1)',
+    background: 'var(--color-primary-muted)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    border: '1px solid rgba(0, 209, 255, 0.2)',
+    border: '1px solid rgba(13, 148, 136, 0.15)',
   },
   logoText: {
     fontFamily: 'var(--font-heading)',
@@ -104,6 +100,8 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 'var(--text-caption)',
     color: 'var(--color-on-surface-variant)',
     fontWeight: 500,
+    textTransform: 'none',
+    letterSpacing: 'normal',
   },
   nav: {
     display: 'flex',
@@ -112,9 +110,10 @@ const styles: Record<string, React.CSSProperties> = {
     flex: 1,
   },
   navLabel: {
-    fontSize: '0.625rem',
-    fontWeight: 700,
-    letterSpacing: '0.12em',
+    fontSize: 'var(--text-caption)',
+    fontWeight: 600,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
     color: 'var(--color-outline)',
     padding: 'var(--space-2) var(--space-3)',
     marginBottom: 'var(--space-2)',
@@ -133,15 +132,14 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 500,
     fontFamily: 'var(--font-body)',
     cursor: 'pointer',
-    transition: 'all var(--transition-base)',
+    transition: 'background-color var(--transition-base), color var(--transition-base), transform var(--transition-fast)',
     textAlign: 'left',
     width: '100%',
   },
   navItemActive: {
-    background: 'rgba(0, 209, 255, 0.08)',
-    color: 'var(--color-primary-soft)',
+    background: 'var(--color-primary-muted)',
+    color: 'var(--color-primary-dim)',
     fontWeight: 600,
-    boxShadow: 'inset 0 0 20px -10px rgba(0, 209, 255, 0.15)',
   },
   activeStrip: {
     position: 'absolute',
@@ -151,7 +149,6 @@ const styles: Record<string, React.CSSProperties> = {
     width: 3,
     borderRadius: 'var(--radius-full)',
     background: 'var(--color-primary)',
-    boxShadow: '0 0 8px rgba(0, 209, 255, 0.5)',
   },
   bottomSection: {
     paddingTop: 'var(--space-4)',
@@ -165,6 +162,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 'var(--text-caption)',
     color: 'var(--color-outline)',
     textAlign: 'center',
+    textTransform: 'none',
+    letterSpacing: 'normal',
+    fontWeight: 400,
   },
   logoutButton: {
     display: 'flex',
@@ -174,12 +174,12 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 'var(--radius-lg)',
     border: 'none',
     background: 'transparent',
-    color: 'var(--status-error)',
+    color: 'var(--color-error)',
     fontSize: 'var(--text-small)',
     fontWeight: 500,
     fontFamily: 'var(--font-body)',
     cursor: 'pointer',
-    transition: 'all var(--transition-base)',
+    transition: 'background-color var(--transition-base), transform var(--transition-fast)',
     textAlign: 'left',
     width: '100%',
     marginBottom: 'var(--space-4)',

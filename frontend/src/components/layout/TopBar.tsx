@@ -9,7 +9,7 @@ export default function TopBar({ title }: { title: string }) {
       </div>
       <div style={styles.right}>
         <div style={styles.searchBox}>
-          <Search size={16} style={{ opacity: 0.5 }} />
+          <Search size={16} style={{ opacity: 0.45, color: 'var(--color-outline)' }} />
           <input
             type="text"
             placeholder="Search transactions..."
@@ -29,9 +29,9 @@ const styles: Record<string, React.CSSProperties> = {
     left: 'var(--sidebar-width)',
     right: 0,
     height: 'var(--topbar-height)',
-    background: 'rgba(10, 10, 10, 0.7)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
+    background: 'rgba(255, 255, 255, 0.92)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
     borderBottom: '1px solid var(--glass-border)',
     display: 'flex',
     alignItems: 'center',
@@ -57,11 +57,12 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: 'var(--space-2)',
-    background: 'rgba(53, 53, 52, 0.4)',
+    background: 'var(--color-surface-container-low)',
     border: '1px solid var(--glass-border)',
     borderRadius: 'var(--radius-full)',
     padding: 'var(--space-2) var(--space-4)',
     minWidth: 240,
+    transition: 'border-color var(--transition-base), box-shadow var(--transition-base)',
   },
   searchInput: {
     background: 'transparent',
@@ -76,13 +77,13 @@ const styles: Record<string, React.CSSProperties> = {
     width: 36,
     height: 36,
     borderRadius: 'var(--radius-lg)',
-    background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
+    background: 'var(--color-primary)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: 'var(--text-caption)',
     fontWeight: 700,
-    color: '#fff',
+    color: '#FFFFFF',
     letterSpacing: '0.02em',
   },
 };

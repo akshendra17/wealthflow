@@ -63,7 +63,7 @@ export default function Analytics() {
   const barData = monthData?.categories?.map((c: any) => ({
     name: c.category,
     amount: c.total_amount,
-    color: CATEGORY_CONFIG[c.category]?.color || '#859399',
+    color: CATEGORY_CONFIG[c.category]?.color || '#94A3B8',
   })) || [];
 
   return (
@@ -108,12 +108,12 @@ export default function Analytics() {
               </h3>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={barData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
                   <XAxis
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#859399', fontSize: 11, fontFamily: 'Inter' }}
+                    tick={{ fill: '#94A3B8', fontSize: 11, fontFamily: 'Inter' }}
                     angle={-35}
                     textAnchor="end"
                     height={60}
@@ -121,27 +121,27 @@ export default function Analytics() {
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#859399', fontSize: 12, fontFamily: 'Inter' }}
+                    tick={{ fill: '#94A3B8', fontSize: 12, fontFamily: 'Inter' }}
                     tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`}
                   />
                   <Tooltip
-                    cursor={{ fill: 'rgba(255, 255, 255, 0.04)' }}
+                    cursor={{ fill: 'rgba(13, 148, 136, 0.06)' }}
                     contentStyle={{
-                      background: 'rgba(20,20,20,0.95)',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: '#FFFFFF',
+                      border: '1px solid #E2E8F0',
                       borderRadius: 12,
                       padding: '10px 14px',
+                      boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)',
                     }}
-                    itemStyle={{ color: '#e5e2e1', fontSize: '13px' }}
+                    itemStyle={{ color: '#475569', fontSize: '13px' }}
                     formatter={(value: any) => formatCurrency(value as number)}
-                    labelStyle={{ color: '#e5e2e1', fontWeight: 600 }}
+                    labelStyle={{ color: '#0F172A', fontWeight: 600 }}
                   />
                   <Bar dataKey="amount" radius={[6, 6, 0, 0]} maxBarSize={40}>
                     {barData.map((entry: any) => (
                       <Cell
                         key={entry.name}
                         fill={entry.color}
-                        style={{ filter: `drop-shadow(0 0 4px ${entry.color}40)` }}
                       />
                     ))}
                   </Bar>

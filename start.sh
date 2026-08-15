@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# WealthFlow Startup Script
+# TxnNova Startup Script
 # This script starts both the FastAPI backend and the Vite+React frontend simultaneously.
 # Pressing Ctrl+C will gracefully shut down both servers.
 
 echo "========================================="
-echo "        🚀 Starting WealthFlow 🚀        "
+echo "        🚀 Starting TxnNova 🚀        "
 echo "========================================="
 
 # Start Backend
@@ -19,7 +19,7 @@ echo "Starting Frontend (Vite on port 5173)..."
 FRONTEND_PID=$!
 
 # Trap SIGINT (Ctrl+C) and SIGTERM to kill both background processes
-trap "echo -e '\nStopping WealthFlow servers...'; kill $BACKEND_PID $FRONTEND_PID; exit 0" SIGINT SIGTERM EXIT
+trap "echo -e '\nStopping TxnNova servers...'; kill $BACKEND_PID $FRONTEND_PID; exit 0" SIGINT SIGTERM EXIT
 
 # Wait for background jobs to finish
 wait

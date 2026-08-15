@@ -1,4 +1,4 @@
-"""Domain-specific exceptions for WealthFlow."""
+"""Domain-specific exceptions for TxnNova."""
 
 from __future__ import annotations
 

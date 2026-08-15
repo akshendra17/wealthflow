@@ -74,7 +74,7 @@ export default function UploadPage() {
             {statements.map((stmt) => (
               <div key={stmt.id} className="glass-card" style={styles.stmtRow}>
                 <div style={styles.stmtIcon}>
-                  <FileText size={20} color="var(--color-primary-soft)" />
+                  <FileText size={20} color="var(--color-primary)" />
                 </div>
                 <div style={styles.stmtInfo}>
                   <span style={styles.stmtName}>{stmt.original_filename}</span>
@@ -138,7 +138,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: 42,
     height: 42,
     borderRadius: 'var(--radius-lg)',
-    background: 'rgba(0, 209, 255, 0.08)',
+    background: 'var(--color-primary-muted)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

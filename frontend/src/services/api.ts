@@ -1,5 +1,5 @@
 /**
- * WealthFlow API service — fetch wrapper for backend communication.
+ * TxnNova API service — fetch wrapper for backend communication.
  */
 
 import type { Statement, Transaction, User, Category, MonthlySummary } from '../types';
@@ -109,11 +109,14 @@ export async function logoutUser(): Promise<void> {
 
 
 // ── Statements ──
-export async function uploadStatement(file: File, bankName: string | null = null): Promise<Statement> {
+export async function uploadStatement(file: File, options?: { bankName?: string | null, password?: string }): Promise<Statement> {
   const formData = new FormData();
   formData.append('file', file);
-  if (bankName) {
-    formData.append('bank_name', bankName);
+  if (options?.bankName) {
+    formData.append('bank_name', options.bankName);
+  }
+  if (options?.password) {
+    formData.append('password', options.password);
   }
   return request('/statements/upload', { method: 'POST', body: formData });
 }

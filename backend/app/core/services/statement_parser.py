@@ -57,15 +57,15 @@ SKIP_KEYWORDS = [
 ]
 
 # Column name mappings (lowercase key -> canonical name)
-DATE_COLUMNS = {"date", "transaction date", "txn date", "value date", "posting date", "trans date"}
+DATE_COLUMNS = {"date", "transaction date", "txn date", "value date", "posting date", "trans date", "date of transaction", "txn dt", "value dt"}
 DESCRIPTION_COLUMNS = {
     "description", "narration", "particulars", "details", "remarks",
-    "transaction details", "transaction description", "memo",
+    "transaction details", "transaction description", "memo", "transaction remarks"
 }
-DEBIT_COLUMNS = {"debit", "withdrawal", "debit amount", "dr", "debit amt"}
-CREDIT_COLUMNS = {"credit", "deposit", "credit amount", "cr", "credit amt"}
-AMOUNT_COLUMNS = {"amount", "transaction amount", "txn amount"}
-BALANCE_COLUMNS = {"balance", "closing balance", "running balance", "available balance"}
+DEBIT_COLUMNS = {"debit", "withdrawal", "debit amount", "dr", "debit amt", "withdrawals"}
+CREDIT_COLUMNS = {"credit", "deposit", "credit amount", "cr", "credit amt", "deposits"}
+AMOUNT_COLUMNS = {"amount", "transaction amount", "txn amount", "amount (inr)", "txn amt"}
+BALANCE_COLUMNS = {"balance", "closing balance", "running balance", "available balance", "bal"}
 
 
 @dataclass
@@ -351,7 +351,28 @@ def parse_csv(file_content: Union[str, bytes], bank_name: Optional[str] = None) 
     return result
 
 
-def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult:
+def _is_password_error(e: Exception) -> bool:
+    """Check if an exception is a PDF password error.
+    
+    pdfplumber wraps pdfminer's PDFPasswordIncorrect inside PdfminerException,
+    but str(PdfminerException) is often empty — so we must also check the
+    exception type name, inner args, and the full repr.
+    """
+    err_str = str(e).lower()
+    if "password" in err_str:
+        return True
+    type_name = type(e).__name__
+    if type_name in ("PDFPasswordIncorrect", "PdfminerException"):
+        return True
+    for arg in getattr(e, 'args', []):
+        if "PDFPasswordIncorrect" in type(arg).__name__:
+            return True
+        if "password" in str(arg).lower():
+            return True
+    return False
+
+
+def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None, password: Optional[str] = None) -> ParseResult:
     """Parse a PDF bank statement using pdfplumber."""
     try:
         # Check for specific bank parser
@@ -360,21 +381,39 @@ def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult
         if not parser:
             # Extract some text for detection
             sample_text = ""
-            with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-                if len(pdf.pages) > 0:
-                    sample_text = pdf.pages[0].extract_text() or ""
+            try:
+                with pdfplumber.open(io.BytesIO(file_bytes), password=password) as pdf:
+                    if len(pdf.pages) > 0:
+                        sample_text = pdf.pages[0].extract_text() or ""
+            except Exception as detect_err:
+                if _is_password_error(detect_err):
+                    raise ParsingError(
+                        "This PDF is password-protected. Please provide the correct password."
+                    )
+                logger.warning("pdf_detection_failed", error=str(detect_err))
             
             detected_bank, parser = detect_parser_from_text(sample_text)
             
+        bank_parser_error = None
         if parser:
             logger.info("using_specific_parser", format="pdf", parser=parser.__name__)
             try:
-                return parser.parse_pdf(file_bytes)
+                import inspect as _inspect
+                _sig = _inspect.signature(parser.parse_pdf)
+                if "password" in _sig.parameters:
+                    return parser.parse_pdf(file_bytes, password=password)
+                else:
+                    return parser.parse_pdf(file_bytes)
             except Exception as e:
-                logger.warning("specific_parser_failed_fallback_to_generic", error=str(e))
+                if _is_password_error(e):
+                    raise ParsingError(
+                        "This PDF is password-protected. Please provide the correct password."
+                    )
+                bank_parser_error = str(e)
+                logger.warning("specific_parser_failed_fallback_to_generic", error=bank_parser_error)
                 
         all_rows = []
-        with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+        with pdfplumber.open(io.BytesIO(file_bytes), password=password) as pdf:
             # 1. Try standard table extraction first
             for page in pdf.pages:
                 tables = page.extract_tables()
@@ -394,47 +433,94 @@ def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult
             except ParsingError:
                 # 2. Text heuristic fallback
                 transactions = []
-                # Matches: "26MAY Description text 1,300.00" or "04/04/2026 Desc 100.00 CR"
-                pattern = re.compile(r"^(\d{2}[A-Za-z]{3}|\d{2}/\d{2}/\d{2,4}|\d{2}-\d{2}-\d{2,4})\s+(.+?)\s+([\d,]+\.\d{2}(?:\s*(?:CR|DR))?)$", re.IGNORECASE)
+                date_regex = re.compile(r"^(\d{1,2}[-/.\s][A-Za-z0-9]{2,3}[-/.\s]\d{2,4}|\d{1,2}[A-Za-z]{3}\d{0,4})\s+")
+                float_regex = re.compile(r"([\d,]+\.\d{2})\s*(CR|DR|Cr|Dr|Cr\.|Dr\.)?")
                 
+                raw_txns = []
                 for page in pdf.pages:
                     text = page.extract_text()
                     if not text:
                         continue
                     for line in text.split('\n'):
                         line = line.strip()
-                        match = pattern.match(line)
-                        if match:
-                            date_str, desc, amt_str = match.groups()
+                        date_match = date_regex.match(line)
+                        if not date_match:
+                            continue
                             
-                            # Skip summary lines that happened to match the regex (e.g., balance lines)
-                            if any(skip in desc.lower() for skip in SKIP_KEYWORDS):
-                                continue
-
-                            txn_date = _parse_date(date_str)
-                            if not txn_date:
-                                continue
+                        date_str = date_match.group(1)
+                        rest = line[date_match.end():]
+                        
+                        floats = float_regex.findall(rest)
+                        if not floats:
+                            continue
                             
-                            is_credit = "CR" in amt_str.upper()
-                            amt = _clean_amount(amt_str.upper().replace("CR", "").replace("DR", ""))
-                            if amt is None:
-                                continue
+                        desc = rest.split(floats[0][0])[0].strip()
+                        if any(skip in desc.lower() for skip in SKIP_KEYWORDS):
+                            continue
+                            
+                        txn_date = _parse_date(date_str)
+                        if not txn_date:
+                            continue
+                            
+                        if txn_date.year == 1900:
+                            txn_date = txn_date.replace(year=datetime.now().year)
+                            
+                        parsed_floats = []
+                        for val, suffix in floats:
+                            num = float(val.replace(',', ''))
+                            parsed_floats.append({"val": num, "suffix": suffix.upper().replace('.', '') if suffix else ""})
+                            
+                        if len(parsed_floats) >= 1:
+                            amt = parsed_floats[0]["val"]
+                            suffix = parsed_floats[0]["suffix"]
+                            
+                            is_credit = suffix == "CR"
+                            txn_type = "CREDIT" if is_credit else "DEBIT"
+                            
+                            if not suffix:
+                                txn_type = "UNKNOWN"
                                 
-                            # If year is 1900 (missing year parsed), we can try to patch it to current year or statement year
-                            if txn_date.year == 1900:
-                                txn_date = txn_date.replace(year=datetime.now().year)
-
-                            transactions.append(
-                                ParsedTransaction(
-                                    transaction_date=txn_date,
-                                    description=desc.strip(),
-                                    amount=amt,
-                                    transaction_type="CREDIT" if is_credit else "DEBIT",
-                                    raw_data={"raw_line": line}
-                                )
-                            )
+                            raw_txns.append({
+                                "date": txn_date,
+                                "desc": desc,
+                                "amt": amt,
+                                "type": txn_type,
+                                "balance": parsed_floats[1]["val"] if len(parsed_floats) >= 2 else None,
+                                "raw_line": line
+                            })
+                
+                # Second pass: infer UNKNOWN types using balance math
+                for i in range(1, len(raw_txns)):
+                    prev = raw_txns[i-1]
+                    curr = raw_txns[i]
+                    if curr["type"] == "UNKNOWN" and prev["balance"] is not None and curr["balance"] is not None:
+                        prev_bal = prev["balance"]
+                        curr_bal = curr["balance"]
+                        amt = curr["amt"]
+                        
+                        if abs(prev_bal + amt - curr_bal) < 0.01:
+                            curr["type"] = "CREDIT"
+                        elif abs(prev_bal - amt - curr_bal) < 0.01:
+                            curr["type"] = "DEBIT"
+                            
+                for rt in raw_txns:
+                    if rt["type"] == "UNKNOWN":
+                        rt["type"] = "DEBIT"
+                    
+                    transactions.append(
+                        ParsedTransaction(
+                            transaction_date=rt["date"],
+                            description=rt["desc"] or "Unknown Transaction",
+                            amount=rt["amt"],
+                            transaction_type=rt["type"],
+                            raw_data={"raw_line": rt["raw_line"]}
+                        )
+                    )
                 
                 if not transactions:
+                    # Surface the bank-specific parser error if available
+                    if bank_parser_error:
+                        raise ParsingError(bank_parser_error)
                     raise ParsingError("Could not detect column headers or transaction rows in the PDF.")
                 
                 dates = [t.transaction_date for t in transactions]
@@ -456,5 +542,7 @@ def parse_pdf(file_bytes: bytes, bank_name: Optional[str] = None) -> ParseResult
     except Exception as e:
         if isinstance(e, ParsingError):
             raise
+        if _is_password_error(e):
+            raise ParsingError("This PDF is password-protected. Please provide the correct password.")
         logger.exception("pdf_parse_error", error=str(e))
         raise ParsingError(f"Failed to read PDF file: {str(e)}")
